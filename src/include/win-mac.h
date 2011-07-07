@@ -13,7 +13,6 @@
 #define _KRB5_WIN_MAC_H
 
 #ifdef _WIN32
-
 #define ID_READ_PWD_DIALOG  10000
 #define ID_READ_PWD_PROMPT  10001
 #define ID_READ_PWD_PROMPT2 10002
@@ -188,6 +187,7 @@ typedef _W64 int         ssize_t;
 #include <fcntl.h>
 #include <io.h>
 #include <process.h>
+#include <wincrypt.h>
 
 #ifdef NEED_SYSERROR
 /* Only needed by util/et/error_message.c but let's keep the source clean */
@@ -219,6 +219,10 @@ HINSTANCE get_lib_instance(void);
 #define GETSOCKNAME_ARG3_TYPE   size_t
 #define GETPEERNAME_ARG2_TYPE   GETSOCKNAME_ARG2_TYPE
 #define GETPEERNAME_ARG3_TYPE   GETSOCKNAME_ARG3_TYPE
+
+typedef uint32_t uid_t;
+typedef DWORD pid_t;
+#define getpid() GetCurrentProcessId()
 
 #endif /* !RES_ONLY */
 
