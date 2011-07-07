@@ -315,7 +315,13 @@ enough_time_passed(struct fortuna_state *st)
     struct timeval tv, *last = &st->last_reseed_time;
     krb5_boolean ok = FALSE;
 
-    gettimeofday(&tv, NULL);
+    /* We need to get the current time with RESEED_INTERVAL accuracy (currently 0.1sec).
+       The only exposed platform-independent function to do this is 
+       krb5_crypto_us_timeofday().  It has the unfortunate side-effect of grabbing 
+       a mutex to protect static data that is used to enforce 'never return the same 
+       time twice' semantics which we do not require.  If this is ever a performance 
+       issue, it would be trivial to fix by exposing get_time_now() from c_ustime.c */
+    krb5_crypto_us_timeofday(&tv.tv_sec, &tv.tv_usec);
 
     /* Check how much time has passed. */
     if (tv.tv_sec > last->tv_sec + 1)
