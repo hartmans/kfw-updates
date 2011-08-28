@@ -60,7 +60,6 @@ int
 leash_error_message(
     const char *error,
     int rcL,
-    int rc4,
     int rc5,
     int rcA,
     char* result_string,
@@ -74,7 +73,7 @@ leash_error_message(
 
     // XXX: ignore AFS for now.
 
-    if (!rc5 && !rc4 && !rcL)
+    if (!rc5 && !rcL)
         return 0;
 
     n = _snprintf(p, size, "%s\n\n", error);
@@ -87,16 +86,6 @@ leash_error_message(
                       "Kerberos 5: %s (error %ld)\n",
                       perror_message(rc5),
                       rc5 & 255 // XXX: & 255??!!!
-            );
-        p += n;
-        size -= n;
-    }
-    if (rc4 && !result_string)
-    {
-        char buffer[1024];
-        n = _snprintf(p, size,
-                      "Kerberos 4: %s\n",
-                      err_describe(buffer, rc4)
             );
         p += n;
         size -= n;
@@ -125,7 +114,6 @@ leash_error_message(
                     MB_SETFOREGROUND);
 #endif /* USE_MESSAGE_BOX */
     if (rc5) return rc5;
-    if (rc4) return rc4;
     if (rcL) return rcL;
     return 0;
 }
@@ -376,8 +364,7 @@ Leash_changepwd_v5(
 /*
  * Leash_changepwd
  *
- * Try to change the password using one of krb5 or krb4 -- whichever one
- * works.  We return ok on the first one that works.
+ * Try to change the password using krb5.
  */
 long
 Leash_changepwd(
@@ -400,9 +387,7 @@ Leash_int_changepwd(
     )
 {
     char* v5_error_str = 0;
-    char* v4_error_str = 0;
     char* error_str = 0;
-    int rc4 = 0;
     int rc5 = 0;
     int rc = 0;
     if (hKrb5)
@@ -410,20 +395,15 @@ Leash_int_changepwd(
                                       &v5_error_str);
     if (!rc)
         return 0;
-    if (v5_error_str || v4_error_str) {
+    if (v5_error_str) {
         int len = 0;
         char v5_prefix[] = "Kerberos 5: ";
         char sep[] = "\n";
-        char v4_prefix[] = "Kerberos 4: ";
 
         clean_string(v5_error_str);
-        clean_string(v4_error_str);
 
         if (v5_error_str)
             len += sizeof(sep) + sizeof(v5_prefix) + strlen(v5_error_str) + 
-                sizeof(sep);
-        if (v4_error_str)
-            len += sizeof(sep) + sizeof(v4_prefix) + strlen(v4_error_str) + 
                 sizeof(sep);
         error_str = malloc(len + 1);
         if (error_str) {
@@ -436,18 +416,12 @@ Leash_int_changepwd(
                 p += n;
                 size -= n;
             }
-            if (v4_error_str) {
-                n = _snprintf(p, size, "%s%s%s%s",
-                              sep, v4_prefix, v4_error_str, sep);
-                p += n;
-                size -= n;
-            }
             if (result_string)
                 *result_string = error_str;
         }
     }
     return leash_error_message("Error while changing password.", 
-                               rc4, rc4, rc5, 0, error_str, 
+                               0, rc5, 0, error_str, 
                                displayErrors
                                );
 }
@@ -527,7 +501,6 @@ Leash_int_kinit_ex(
     char    temp[1024];
     int     count;
     int     i;
-    int rc4 = 0;
     int rc5 = 0;
     int rcA = 0;
     int rcB = 0;
@@ -630,7 +603,6 @@ Leash_int_kinit_ex(
  cleanup:
     return leash_error_message("Ticket initialization failed.", 
                                rcL, 
-                               0,
                                rc5, rcA, 0,
                                displayErrors);
 }
@@ -1985,33 +1957,7 @@ DWORD
 Leash_get_default_use_krb4(
     )
 {
-    HMODULE hmLeash;
-    char env[32];
-    DWORD result;
-
-    if(GetEnvironmentVariable("USEKRB4",env,sizeof(env)))
-    {
-        return atoi(env);
-    }
-
-    if (get_default_use_krb4_from_registry(HKEY_CURRENT_USER, &result) ||
-        get_default_use_krb4_from_registry(HKEY_LOCAL_MACHINE, &result))
-    {
-        return result;
-    }
-
-    hmLeash = GetModuleHandle(LEASH_DLL);
-    if (hmLeash)
-    {
-        char use_krb4[80];
-        if (LoadString(hmLeash, LSH_DEFAULT_TICKET_USEKRB4, 
-                       use_krb4, sizeof(use_krb4)))
-        {
-            use_krb4[sizeof(use_krb4) - 1] = 0;
-            return atoi(use_krb4);
-        }
-    }
-    return 1;	/* use krb4 unless otherwise specified */
+    return 0;	/* don't use krb4 */
 }
 
 static
