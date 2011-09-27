@@ -136,7 +136,7 @@ gss_krb5int_make_seal_token_v3 (krb5_context context,
         /* Get size of ciphertext.  */
         bufsize = 16 + krb5_encrypt_size (plain.length, key->keyblock.enctype);
         /* Allocate space for header plus encrypted data.  */
-        outbuf = malloc(bufsize);
+        outbuf = gss_malloc_buffer(bufsize);
         if (outbuf == NULL) {
             free(plain.data);
             return ENOMEM;
@@ -204,7 +204,7 @@ gss_krb5int_make_seal_token_v3 (krb5_context context,
         assert(cksumsize <= 0xffff);
 
         bufsize = 16 + message2->length + cksumsize;
-        outbuf = malloc(bufsize);
+        outbuf = gss_malloc_buffer(bufsize);
         if (outbuf == NULL) {
             free(plain.data);
             plain.data = 0;
@@ -290,7 +290,7 @@ gss_krb5int_make_seal_token_v3 (krb5_context context,
     return 0;
 
 error:
-    free(outbuf);
+    gss_free_buffer(outbuf);
     token->value = NULL;
     token->length = 0;
     return err;

@@ -271,7 +271,9 @@ generic_gss_oid_to_str(OM_uint32 *minor_status,
         return(GSS_S_FAILURE);
     }
     oid_str->length = krb5int_buf_len(&buf)+1;
-    oid_str->value = (void *) bp;
+    oid_str->value = gss_malloc_buffer(oid_str->length);
+    memcpy(oid_str->value, bp, oid_str->length);
+    krb5int_free_buf(&buf);
     return(GSS_S_COMPLETE);
 }
 

@@ -41,6 +41,7 @@
 
 #include "gssapi_generic.h"
 #include "gssapi_ext.h"
+#include "gssapi_bufferext.h"
 #include "gssapi_err_generic.h"
 #include <errno.h>
 

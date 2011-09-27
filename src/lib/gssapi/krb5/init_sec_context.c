@@ -475,14 +475,13 @@ make_ap_req_v1(context, ctx, cred, k_cred, ad_context,
          * typical GSS wrapping.
          */
         token->length = ap_req.length;
-        token->value = ap_req.data;
-
-        ap_req.data = NULL; /* don't double free */
+        token->value = gss_malloc_buffer(ap_req.length);
+        memcpy(token->value, ap_req.data, ap_req.length);
     } else {
         /* allocate space for the token */
         tlen = g_token_size((gss_OID) mech_type, ap_req.length);
 
-        if ((t = (unsigned char *) xmalloc(tlen)) == NULL) {
+        if ((t = (unsigned char *) gss_malloc_buffer(tlen)) == NULL) {
             code = ENOMEM;
             goto cleanup;
         }
