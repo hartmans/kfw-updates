@@ -1186,6 +1186,21 @@ iakerb_verify_finished(krb5_context context,
                        const krb5_data *conv,
                        const krb5_data *finished);
 
+static inline void
+gss_krb5int_transfer_krb5_data_to_gss_buffer(krb5_data *input_k5data,
+                                             gss_buffer_t output_buffer)
+{
+    output_buffer->length = input_k5data->length;
+#ifdef _WIN32
+    output_buffer->value = gssalloc_malloc(output_buffer->length);
+    memcpy(output_buffer->value, input_k5data->data, output_buffer->length);
+    free(input_k5data->data);
+#else
+    output_buffer->value = input_k5data->data;
+#endif
+    input_k5data = NULL;
+}
+
 #define KRB5_GSS_EXTS_IAKERB_FINISHED 1
 
 #endif /* _GSSAPIP_KRB5_H_ */
