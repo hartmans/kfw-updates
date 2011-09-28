@@ -39,11 +39,10 @@ int g_make_string_buffer(const char *str, gss_buffer_t buffer)
 
     buffer->length = strlen(str);
 
-    if ((buffer->value = gss_malloc_buffer(buffer->length+1)) == NULL) {
+    if ((buffer->value = gssalloc_strdup(str)) == NULL) {
         buffer->length = 0;
         return(0);
     }
-    strcpy(buffer->value, str);
 
     return(1);
 }

@@ -1128,7 +1128,7 @@ kg_accept_krb5(minor_status, context_handle,
 
         token.length = g_token_size(mech_used, ap_rep.length);
 
-        if ((token.value = (unsigned char *) xmalloc(token.length))
+        if ((token.value = (unsigned char *) gssalloc_malloc(token.length))
             == NULL) {
             major_status = GSS_S_FAILURE;
             code = ENOMEM;

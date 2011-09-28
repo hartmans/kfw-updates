@@ -59,6 +59,7 @@
 
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
+#include <gssapi/gssapi_alloc.h>
 #include "gss-misc.h"
 
 #ifdef HAVE_STRING_H
@@ -178,7 +179,7 @@ server_establish_context(int s, gss_cred_id_t server_creds,
         return -1;
 
     if (recv_tok.value) {
-        free(recv_tok.value);
+        gssalloc_free(recv_tok.value);
         recv_tok.value = NULL;
     }
 
@@ -211,7 +212,7 @@ server_establish_context(int s, gss_cred_id_t server_creds,
                                               NULL); /* del_cred_handle */
 
             if (recv_tok.value) {
-                free(recv_tok.value);
+                gssalloc_free(recv_tok.value);
                 recv_tok.value = NULL;
             }
 
@@ -451,7 +452,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             if (logfile)
                 fprintf(logfile, "NOOP token\n");
             if (xmit_buf.value) {
-                free(xmit_buf.value);
+                gssalloc_free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
             break;
@@ -469,7 +470,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
                 fprintf(logfile,
                         "Unauthenticated client requested authenticated services!\n");
             if (xmit_buf.value) {
-                free(xmit_buf.value);
+                gssalloc_free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
             return (-1);
@@ -481,7 +482,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             if (maj_stat != GSS_S_COMPLETE) {
                 display_status("unsealing message", maj_stat, min_stat);
                 if (xmit_buf.value) {
-                    free(xmit_buf.value);
+                    gssalloc_free(xmit_buf.value);
                     xmit_buf.value = 0;
                 }
                 return (-1);
@@ -490,7 +491,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             }
 
             if (xmit_buf.value) {
-                free(xmit_buf.value);
+                gssalloc_free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
         } else {
@@ -520,7 +521,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             }
 
             if (msg_buf.value) {
-                free(msg_buf.value);
+                gssalloc_free(msg_buf.value);
                 msg_buf.value = 0;
             }
 
@@ -529,12 +530,12 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
                 return (-1);
 
             if (xmit_buf.value) {
-                free(xmit_buf.value);
+                gssalloc_free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
         } else {
             if (msg_buf.value) {
-                free(msg_buf.value);
+                gssalloc_free(msg_buf.value);
                 msg_buf.value = 0;
             }
             if (send_token(s, TOKEN_NOOP, empty_token) < 0)

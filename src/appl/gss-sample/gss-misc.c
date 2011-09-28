@@ -70,6 +70,7 @@
 #endif
 
 #include <gssapi/gssapi_generic.h>
+#include <gssapi/gssapi_alloc.h>
 #include "gss-misc.h"
 
 #ifdef HAVE_STDLIB_H
@@ -124,6 +125,64 @@ read_all(int fildes, char *buf, unsigned int nbyte)
             return (ptr - buf);
         ret = recv(fildes, ptr, nbyte, 0);
         if (ret < 0) {
+#ifdef _WIN32
+            const char* msg = "Unknown error";
+            int error_code = WSAGetLastError();
+            switch (error_code)
+            {
+            case WSANOTINITIALISED:
+                msg = "A successful WSAStartup call must occur before using this function.";
+                break;
+            case WSAENETDOWN:
+                msg = "The network subsystem has failed.";
+                break;
+            case WSAEFAULT:
+                msg = "The buf parameter is not completely contained in a valid part of the user address space.";
+                break;
+            case WSAENOTCONN:
+                msg = "The socket is not connected.";
+                break;
+            case WSAEINTR:
+                msg="The socket was closed.";
+                break;
+            case WSAEINPROGRESS:
+                msg="A blocking Winsock call is in progress, or the service provider is still processing a callback function.";
+                break;
+            case WSAENETRESET:
+                msg = "The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.";
+                break;
+            case WSAENOTSOCK:
+                msg = "The descriptor is not a socket.";
+                break;
+            case WSAEOPNOTSUPP:
+                msg = "MSG_OOB was specified, but the socket is not stream style such as type SOCK_STREAM, out of band (OOB) data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.";
+                break;
+            case WSAESHUTDOWN:
+                msg = "The socket has been shut down; it is not possible to receive on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.";
+                break;
+            case WSAEWOULDBLOCK:
+                msg = "The socket is marked as nonblocking and the receive operation would block.";
+                break;
+            case WSAEMSGSIZE:
+                msg = "The message was too large to fit into the specified buffer and was truncated.";
+                break;
+            case WSAEINVAL:
+                msg = "The socket has not been bound with bind (Windows Sockets), an unknown flag was specified, MSG_OOB was specified for a socket with SO_OOBINLINE enabled, or (for byte stream sockets only) len was zero or negative.";
+                break;
+            case WSAECONNABORTED:
+                msg = "The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.";
+                break;
+            case WSAETIMEDOUT:
+                msg = "The connection has been dropped because of a network failure or because the peer system failed to respond.";
+                break;
+            case WSAECONNRESET:
+                msg = "The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket because it is no longer usable.";
+                break;
+            default:
+                break;
+            }
+            perror(msg);
+#endif
             if (errno == EINTR)
                 continue;
             return (ret);
@@ -280,7 +339,7 @@ recv_token(s, flags, tok)
                    | (lenbuf[1] << 16)
                    | (lenbuf[2] << 8)
                    | lenbuf[3]);
-    tok->value = (char *) malloc(tok->length ? tok->length : 1);
+    tok->value = (char *) gssalloc_malloc(tok->length ? tok->length : 1);
     if (tok->length && tok->value == NULL) {
         if (display_file)
             fprintf(display_file, "Out of memory allocating token data\n");
@@ -290,12 +349,12 @@ recv_token(s, flags, tok)
     ret = read_all(s, (char *) tok->value, tok->length);
     if (ret < 0) {
         perror("reading token data");
-        free(tok->value);
+        gssalloc_free(tok->value);
         return -1;
     } else if (ret != tok->length) {
         fprintf(stderr, "sending token data: %d of %d bytes written\n",
                 ret, (int) tok->length);
-        free(tok->value);
+        gssalloc_free(tok->value);
         return -1;
     }
 

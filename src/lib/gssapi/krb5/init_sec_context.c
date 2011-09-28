@@ -474,14 +474,12 @@ make_ap_req_v1(context, ctx, cred, k_cred, ad_context,
          * For DCE RPC, do not encapsulate the AP-REQ in the
          * typical GSS wrapping.
          */
-        token->length = ap_req.length;
-        token->value = gss_malloc_buffer(ap_req.length);
-        memcpy(token->value, ap_req.data, ap_req.length);
+        gss_krb5int_transfer_krb5_data_to_gss_buffer(&ap_req, token);
     } else {
         /* allocate space for the token */
         tlen = g_token_size((gss_OID) mech_type, ap_req.length);
 
-        if ((t = (unsigned char *) gss_malloc_buffer(tlen)) == NULL) {
+        if ((t = (unsigned char *) gssalloc_malloc(tlen)) == NULL) {
             code = ENOMEM;
             goto cleanup;
         }

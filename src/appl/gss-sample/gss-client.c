@@ -65,6 +65,7 @@
 
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
+#include <gssapi/gssapi_alloc.h>
 #include <gssapi/gssapi_ext.h>
 #include "gss-misc.h"
 #include "port-sockets.h"
@@ -308,7 +309,7 @@ client_establish_context(int s, char *service_name, OM_uint32 gss_flags,
                                             NULL);  /* time_rec */
 
             if (token_ptr != GSS_C_NO_BUFFER)
-                free(recv_tok.value);
+                gssalloc_free(recv_tok.value);
 
             if (send_tok.length != 0) {
                 if (verbose)
@@ -623,11 +624,11 @@ call_server(host, port, oid, service_name, gss_flags, auth_flag,
                 printf("Response received.\n");
         }
 
-        free(out_buf.value);
+        gssalloc_free(out_buf.value);
     }
 
     if (use_file)
-        free(in_buf.value);
+        gssalloc_free(in_buf.value);
 
     /* Send NOOP */
     if (!v1_format)
