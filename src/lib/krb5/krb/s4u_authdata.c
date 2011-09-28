@@ -54,7 +54,7 @@ s4u2proxy_flags(krb5_context kcontext,
                 krb5_authdatatype ad_type,
                 krb5_flags *flags)
 {
-    *flags = AD_USAGE_KDC_ISSUED;
+    *flags = AD_USAGE_MASK; //AD_USAGE_KDC_ISSUED;
 }
 
 static void
@@ -133,6 +133,12 @@ s4u2proxy_import_authdata(krb5_context kcontext,
     krb5_free_ad_signedpath(kcontext, sp);
 
     s4uctx->count = 0;
+
+    /* HACK!: create dummy principal for testing if none provided */
+    if (s4uctx->delegated == NULL) {
+        s4uctx->delegated = calloc(2, sizeof(krb5_principal));
+        s4uctx->delegated[0] = calloc(1, sizeof(krb5_principal_data));
+    }
 
     if (s4uctx->delegated != NULL) {
         for (s4uctx->count = 0; s4uctx->delegated[s4uctx->count];

@@ -818,7 +818,7 @@ krb5_gss_authorize_localname(OM_uint32 *minor,
     *minor = 0;
     return user_ok ? GSS_S_COMPLETE : GSS_S_UNAUTHORIZED;
 }
-
+#define IOV_SHIM_EXERCISE_WRAP
 static struct gss_config krb5_mechanism = {
     { GSS_MECH_KRB5_OID_LENGTH, GSS_MECH_KRB5_OID },
     NULL,
