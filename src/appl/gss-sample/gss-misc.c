@@ -339,7 +339,7 @@ recv_token(s, flags, tok)
                    | (lenbuf[1] << 16)
                    | (lenbuf[2] << 8)
                    | lenbuf[3]);
-    tok->value = (char *) gssalloc_malloc(tok->length ? tok->length : 1);
+    tok->value = (char *) malloc(tok->length ? tok->length : 1);
     if (tok->length && tok->value == NULL) {
         if (display_file)
             fprintf(display_file, "Out of memory allocating token data\n");
@@ -349,12 +349,12 @@ recv_token(s, flags, tok)
     ret = read_all(s, (char *) tok->value, tok->length);
     if (ret < 0) {
         perror("reading token data");
-        gssalloc_free(tok->value);
+        free(tok->value);
         return -1;
     } else if (ret != tok->length) {
         fprintf(stderr, "sending token data: %d of %d bytes written\n",
                 ret, (int) tok->length);
-        gssalloc_free(tok->value);
+        free(tok->value);
         return -1;
     }
 

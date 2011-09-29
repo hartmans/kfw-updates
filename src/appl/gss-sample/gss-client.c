@@ -309,7 +309,7 @@ client_establish_context(int s, char *service_name, OM_uint32 gss_flags,
                                             NULL);  /* time_rec */
 
             if (token_ptr != GSS_C_NO_BUFFER)
-                gssalloc_free(recv_tok.value);
+                free(recv_tok.value);
 
             if (send_tok.length != 0) {
                 if (verbose)
@@ -624,11 +624,11 @@ call_server(host, port, oid, service_name, gss_flags, auth_flag,
                 printf("Response received.\n");
         }
 
-        gssalloc_free(out_buf.value);
+        free(out_buf.value);
     }
 
     if (use_file)
-        gssalloc_free(in_buf.value);
+        free(in_buf.value);
 
     /* Send NOOP */
     if (!v1_format)

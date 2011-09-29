@@ -59,7 +59,7 @@
 
 #include <gssapi/gssapi_generic.h>
 #include <gssapi/gssapi_krb5.h>
-#include <gssapi/gssapi_alloc.h>
+#include <gssapi/gssapi_ext.h>
 #include "gss-misc.h"
 
 #ifdef HAVE_STRING_H
@@ -179,7 +179,7 @@ server_establish_context(int s, gss_cred_id_t server_creds,
         return -1;
 
     if (recv_tok.value) {
-        gssalloc_free(recv_tok.value);
+        free(recv_tok.value);
         recv_tok.value = NULL;
     }
 
@@ -212,7 +212,7 @@ server_establish_context(int s, gss_cred_id_t server_creds,
                                               NULL); /* del_cred_handle */
 
             if (recv_tok.value) {
-                gssalloc_free(recv_tok.value);
+                free(recv_tok.value);
                 recv_tok.value = NULL;
             }
 
@@ -416,13 +416,14 @@ test_import_export_context(gss_ctx_id_t *context)
 static int
 sign_server(int s, gss_cred_id_t server_creds, int export)
 {
-    gss_buffer_desc client_name, xmit_buf, msg_buf;
+    gss_buffer_desc client_name, xmit_buf, msg_buf, *send_buf;
     gss_ctx_id_t context;
     OM_uint32 maj_stat, min_stat;
     int     i, conf_state;
     OM_uint32 ret_flags;
     char   *cp;
     int     token_flags;
+    int     send_flags;
 
     /* Establish a context with the client */
     if (server_establish_context(s, server_creds, &context,
@@ -452,7 +453,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             if (logfile)
                 fprintf(logfile, "NOOP token\n");
             if (xmit_buf.value) {
-                gssalloc_free(xmit_buf.value);
+                free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
             break;
@@ -470,7 +471,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
                 fprintf(logfile,
                         "Unauthenticated client requested authenticated services!\n");
             if (xmit_buf.value) {
-                gssalloc_free(xmit_buf.value);
+                free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
             return (-1);
@@ -482,7 +483,7 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             if (maj_stat != GSS_S_COMPLETE) {
                 display_status("unsealing message", maj_stat, min_stat);
                 if (xmit_buf.value) {
-                    gssalloc_free(xmit_buf.value);
+                    free(xmit_buf.value);
                     xmit_buf.value = 0;
                 }
                 return (-1);
@@ -491,11 +492,12 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
             }
 
             if (xmit_buf.value) {
-                gssalloc_free(xmit_buf.value);
+                free(xmit_buf.value);
                 xmit_buf.value = 0;
             }
         } else {
             msg_buf = xmit_buf;
+            xmit_buf.value = 0;
         }
 
         if (logfile) {
@@ -519,27 +521,30 @@ sign_server(int s, gss_cred_id_t server_creds, int export)
                 display_status("signing message", maj_stat, min_stat);
                 return (-1);
             }
+            send_flags = TOKEN_MIC;
+            send_buf = &xmit_buf;
+        }
+        else {
+            send_flags = TOKEN_NOOP;
+            send_buf = empty_token;
+        }
 
-            if (msg_buf.value) {
-                gssalloc_free(msg_buf.value);
+        if (msg_buf.value) {
+            if (token_flags & TOKEN_WRAPPED) {
+                gss_release_buffer(&min_stat, &msg_buf);
+            }
+            else {
+                free(msg_buf.value);
                 msg_buf.value = 0;
             }
+        }
 
-            /* Send the signature block to the client */
-            if (send_token(s, TOKEN_MIC, &xmit_buf) < 0)
-                return (-1);
+        /* Send the signature block or NOOP to the client */
+        if (send_token(s, send_flags, send_buf) < 0)
+            return (-1);
 
-            if (xmit_buf.value) {
-                gssalloc_free(xmit_buf.value);
-                xmit_buf.value = 0;
-            }
-        } else {
-            if (msg_buf.value) {
-                gssalloc_free(msg_buf.value);
-                msg_buf.value = 0;
-            }
-            if (send_token(s, TOKEN_NOOP, empty_token) < 0)
-                return (-1);
+        if (xmit_buf.value) {
+            gss_release_buffer(&min_stat, &xmit_buf);
         }
     } while (1 /* loop will break if NOOP received */ );
 
