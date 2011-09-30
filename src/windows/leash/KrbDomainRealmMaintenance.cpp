@@ -193,6 +193,8 @@ void CKrbDomainRealmMaintenance::OnCancel()
 
 void CKrbDomainRealmMaintenance::OnButtonHostAdd()
 {
+////I don't understand why this is doing K4 operations here
+#ifndef NO_KRB4
 	CKrb4AddToDomainRealmList addToDomainRealmList;
 	if (IDOK == addToDomainRealmList.DoModal())
 	{
@@ -242,7 +244,7 @@ void CKrbDomainRealmMaintenance::OnButtonHostAdd()
 			GetDlgItem(IDC_BUTTON_HOST_EDIT)->EnableWindow();
 		}
 	}
-
+#endif
 }
 
 void CKrbDomainRealmMaintenance::OnButtonHostEdit()

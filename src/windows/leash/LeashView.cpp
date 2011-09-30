@@ -1969,8 +1969,10 @@ VOID CLeashView::OnKrbProperties()
 
 VOID CLeashView::OnKrb4Properties()
 {
+#ifndef NO_KRB4
     CKrb4Properties krb4Properties("Kerberos Four Properties");
     krb4Properties.DoModal();
+#endif
 }
 
 VOID CLeashView::OnKrb5Properties()

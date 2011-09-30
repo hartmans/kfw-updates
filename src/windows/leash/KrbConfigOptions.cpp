@@ -203,7 +203,7 @@ BOOL CKrbConfigOptions::OnInitDialog()
 
 					m_hostServer = krbhst;
 
-					// New suff to put realms in Combo Box
+					// New stuff to put realms in Combo Box
 					CStdioFile krbCon;
 					if (!krbCon.Open(CKrbProperties::m_krbPath, CFile::modeRead))
 					{
