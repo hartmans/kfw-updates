@@ -14,16 +14,17 @@ AFS_INCLUDES=
 AFS_LIBS=
 !endif
 
+MFCLIB=MFC42D.LIB
+EXE_NAME=leash32
+WSHELPER=wshelp32
 
-#////$(OUTPRE)Krb4AddToDomainRealmList.obj \
-#////	$(OUTPRE)Krb4AddToRealmHostList.obj \
-#////	$(OUTPRE)Krb4DomainRealmMaintenance.obj \
-#////	$(OUTPRE)Krb4EditDomainRealmList.obj \
-#////	$(OUTPRE)Krb4EditRealmHostList.obj \
-#////	$(OUTPRE)Krb4Properties.obj \
-#////	$(OUTPRE)Krb4RealmHostMaintenance.obj \
-	
+!if ("$(CPU)" == "IA64") || ("$(CPU)" == "AMD64") || ("$(CPU)" == "ALPHA64")
+EXE_NAME=leash64
+WSHELPER=wshelp64
+!endif
+
 OBJS=   \
+	$(OUTPRE)Krb4EditDomainRealmList.obj \
 	$(OUTPRE)CLeashDragListBox.obj \
 	$(OUTPRE)Krb5Properties.obj \
 	$(OUTPRE)KrbAddHostServer.obj \
@@ -63,8 +64,7 @@ LOCALINCLUDES= -I$(BUILDTOP) -I$(BUILDTOP)\include -I$(BUILDTOP)\windows\include
 RFLAGS	= $(LOCALINCLUDES)
 RCFLAGS	= $(RFLAGS) -D_WIN32 -DLEASH_APP
 
-
-DEFINES = -DWINSOCK -DWIN32 -DWINDOWS -D_AFXDLL -DNO_KRB4
+DEFINES = -DWINSOCK -DWIN32 -DWINDOWS -D_AFXDLL -D_MBCS -DNO_KRB4
 !ifdef NODEBUG
 DEFINES = $(DEFINES)
 !else
@@ -78,14 +78,15 @@ DEFINES = $(DEFINES) -DNO_AFS
 ##### Linker
 LINK	= link
 LIBS	= $(GLIB) $(CLIB) $(WLIB)
-SYSLIBS	= kernel32.lib ws2_32.lib user32.lib gdi32.lib comdlg32.lib comctl32.lib
+SYSLIBS	= kernel32.lib Iphlpapi.lib ws2_32.lib user32.lib gdi32.lib comdlg32.lib comctl32.lib version.lib
 LFLAGS	= /nologo $(LOPTS)
 
-all:: Makefile $(OUTPRE)leash32.exe
+all:: Makefile $(OUTPRE)$(EXE_NAME).exe
 
-$(OUTPRE)leash32.exe: $(OBJS) $(XOBJS) $(LIBS)
-	$(LINK) $(LFLAGS) /out:$@ $(OBJS) $(XOBJS) \
-	  $(LIBS) $(SYSLIBS) $(KFWLIB) $(SCLIB)
+$(OUTPRE)$(EXE_NAME).exe: $(OBJS) $(XOBJS) $(LIBS)
+	$(LINK) $(LFLAGS) /out:$@ /ENTRY:WinMainCRTStartup $(OBJS) $(XOBJS) \
+	  $(LIBS) $(SYSLIBS) $(BUILDTOP)\windows\wshelper\$(OUTPRE)$(WSHELPER).lib \
+	  ../lib/$(OUTPRE)libwin.lib atl.lib $(MFCLIB) $(SCLIB)
 
 $(RESFILE): ..\version.rc Leash.rc
 
