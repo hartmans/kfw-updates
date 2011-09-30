@@ -68,13 +68,20 @@
 #define HID_KERBEROS_PROPERTIES_EDITHOST 131271
 #define HID_KERBEROS_PROPERTIES_LISTDOM 131279
 
-#define USE_HTMLHELP
+////@#+This might be problematic with the latest Platform SDK...
+////#define USE_HTMLHELP
 
 #ifdef USE_HTMLHELP
 #if _MSC_VER >= 1300
 #define CALL_HTMLHELP
 #endif
 #endif
+
+////Is this a good place for these defines?
+#if !defined(MAX_HSTNM)
+#define         MAX_HSTNM       100
+#endif
+
 
 #include "resource.h"       // main symbols
 #include "lglobals.h"
@@ -96,10 +103,13 @@ private:
 	BOOL		FirstInstance();
 
 public:
-	static HWND			m_hProgram;
+	static HWND			m_hProgram; 	
 	static HINSTANCE	m_hLeashDLL;
+////
+#ifndef NO_KRB4
 	static HINSTANCE	m_hKrb4DLL;
-	static HINSTANCE	m_hKrb5DLL;
+#endif
+	static HINSTANCE	m_hKrb5DLL; 
 	static HINSTANCE	m_hKrb5ProfileDLL;
 	static HINSTANCE	m_hAfsDLL;
 	static HINSTANCE	m_hPsapi;

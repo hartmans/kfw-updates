@@ -140,6 +140,7 @@ BOOL CKrbDomainRealmMaintenance::OnApply()
 		return TRUE;
 	}
 
+#ifndef NO_KRB4
 	// Save to Kerberos Four config. file "Krb.con"
 	CStdioFile krbrealmCon;
 	if (!krbrealmCon.Open(CKrbProperties::m_krbrealmPath, CFile::modeCreate |
@@ -165,6 +166,8 @@ BOOL CKrbDomainRealmMaintenance::OnApply()
 	}
 
 	krbrealmCon.Close();
+#endif
+
 	return TRUE;
 }
 
