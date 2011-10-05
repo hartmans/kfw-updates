@@ -14,7 +14,7 @@ AFS_INCLUDES=
 AFS_LIBS=
 !endif
 
-MFCLIB=MFC42D.LIB
+MFCLIB=MFC100D.LIB
 EXE_NAME=leash32
 WSHELPER=wshelp32
 
@@ -85,7 +85,7 @@ all:: Makefile $(OUTPRE)$(EXE_NAME).exe
 
 $(OUTPRE)$(EXE_NAME).exe: $(OBJS) $(XOBJS) $(LIBS)
 	$(LINK) $(LFLAGS) /out:$@ /ENTRY:WinMainCRTStartup $(OBJS) $(XOBJS) \
-	  $(LIBS) $(SYSLIBS) $(BUILDTOP)\windows\wshelper\$(OUTPRE)$(WSHELPER).lib \
+	  $(LIBS) $(SYSLIBS) $(BUILDTOP)\util\wshelper\$(OUTPRE)$(WSHELPER).lib \
 	  ../lib/$(OUTPRE)libwin.lib atl.lib $(MFCLIB) $(SCLIB)
 
 $(RESFILE): ..\version.rc Leash.rc
