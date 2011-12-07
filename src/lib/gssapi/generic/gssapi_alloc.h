@@ -12,8 +12,8 @@
 #endif
 #include <string.h>
 
-#if 0 // _WIN32
-#define WIN32ALLOC
+#if _WIN32
+#define WIN32ALLOC 1
 #endif
 
 static inline void
