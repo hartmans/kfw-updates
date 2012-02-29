@@ -55,6 +55,7 @@ krb5int_build_principal_va(krb5_context context,
     if (!retval && first) {
         data[0].length = strlen(first);
         data[0].data = strdup(first);
+        data[0].magic = KV5M_DATA;
         if (!data[0].data) { retval = ENOMEM; }
         count++;
 
@@ -75,6 +76,7 @@ krb5int_build_principal_va(krb5_context context,
             if (!retval) {
                 data[count].length = strlen(component);
                 data[count].data = strdup(component);
+                data[count].magic = KV5M_DATA;
                 if (!data[count].data) { retval = ENOMEM; }
                 count++;
             }
@@ -86,6 +88,7 @@ krb5int_build_principal_va(krb5_context context,
         princ->magic = KV5M_PRINCIPAL;
         krb5_princ_set_realm_data(context, princ, r);
         krb5_princ_set_realm_length(context, princ, rlen);
+        krb5_princ_realm(context, princ)->magic = KV5M_DATA; /* krb5_princ_set_realm_magic(context, princ, KV5M_DATA)? */
         princ->data = data;
         princ->length = count;
         r = NULL;    /* take ownership */
