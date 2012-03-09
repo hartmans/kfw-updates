@@ -6,6 +6,8 @@ PROG_LIBPATH=-L$(TOPLIBD)
 PROG_RPATH=$(KRB5_LIBDIR)
 DEFS=
 
+##WIN32##all-windows:: $(OUTPRE)t_str2key.exe
+
 EXTRADEPSRCS=\
 	$(srcdir)/t_nfold.c	\
 	$(srcdir)/t_encrypt.c	\
@@ -144,6 +146,9 @@ t_kperf: t_kperf.o $(KRB5_BASE_DEPLIBS)
 
 t_str2key$(EXEEXT): t_str2key.$(OBJEXT) $(KRB5_BASE_DEPLIBS)
 	$(CC_LINK) -o $@ t_str2key.$(OBJEXT) $(KRB5_BASE_LIBS)
+
+##WIN32##$(OUTPRE)t_str2key.exe: $(OUTPRE)t_str2key.obj $(BUILDTOP)\util\windows\$(OUTPRE)getopt.lib $(KLIB) $(CLIB)
+##WIN32##	link $(EXE_LINKOPTS) -out:$@ $** advapi32.lib
 
 t_derive$(EXEEXT): t_derive.$(OBJEXT) $(KRB5_BASE_DEPLIBS)
 	$(CC_LINK) -o $@ t_derive.$(OBJEXT) $(KRB5_BASE_LIBS)
