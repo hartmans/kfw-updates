@@ -97,6 +97,9 @@ private:
 	BOOL				m_debugStartUp;
 	BOOL				m_alreadyPlayed;
     INT					m_upperCaseRealm;
+    INT                                 m_showTicketFlags;
+    INT                                 m_showTimeIssued;
+    INT                                 m_showRenewableUntil;
 	INT					m_destroyTicketsOnExit;
 	INT					m_debugWindow;
 	INT					m_largeIcons;
@@ -223,6 +226,9 @@ protected:
 	afx_msg VOID OnSynTime();
 	afx_msg VOID OnDebugMode();
 	afx_msg VOID OnLargeIcons();
+        afx_msg VOID OnTimeIssued();
+        afx_msg VOID OnRenewableUntil();
+        afx_msg VOID OnShowTicketFlags();
 	afx_msg VOID OnUppercaseRealm();
 	afx_msg VOID OnKillTixOnExit();
 	afx_msg VOID OnDestroy();

@@ -121,10 +121,13 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "&Large Icons",                ID_LARGE_ICONS
-        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
-        MENUITEM "&Debug Window",               ID_DEBUG_MODE
+        MENUITEM "&Time Issued",                ID_TIME_ISSUED
+        MENUITEM "&Renewable Until",            ID_RENEWABLE_UNTIL
+        MENUITEM "&Flags",                      ID_SHOW_TICKET_FLAGS
+//        MENUITEM "&Large Icons",                ID_LARGE_ICONS
+//        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+//        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+//        MENUITEM "&Debug Window",               ID_DEBUG_MODE
     END
     POPUP "&Options"
     BEGIN
@@ -950,6 +953,9 @@ BEGIN
     ID_OPTIONS_LOWTICKETALARMSOUND
                             "Turn alarm off or on,  when ticket time is low"
     ID_LOW_TICKET_ALARM     "Turn alarm on or off, on low ticket(s)/token(s) times"
+    ID_TIME_ISSUED          "Display ticket time issued column"
+    ID_RENEWABLE_UNTIL      "Display ticket renewable until time column"
+    ID_SHOW_TICKET_FLAGS    "Display ticket flags column"
 END
 
 #endif    // English (U.S.) resources

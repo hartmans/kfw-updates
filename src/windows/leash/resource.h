@@ -322,6 +322,9 @@
 #define ID_INIT_TICKET                  32807
 #define ID_AUTO_RENEW                   32808
 #define ID_OBTAIN_TGT_WITH_LPARAM       32809
+#define ID_TIME_ISSUED                  32810
+#define ID_RENEWABLE_UNTIL              32811
+#define ID_SHOW_TICKET_FLAGS            32812
 
 // Next default values for new objects
 //

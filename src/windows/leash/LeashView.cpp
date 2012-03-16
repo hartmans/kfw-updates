@@ -59,6 +59,9 @@ BEGIN_MESSAGE_MAP(CLeashView, CFormView)
 	ON_COMMAND(ID_SYN_TIME, OnSynTime)
 	ON_COMMAND(ID_DEBUG_MODE, OnDebugMode)
 	ON_COMMAND(ID_LARGE_ICONS, OnLargeIcons)
+	ON_COMMAND(ID_TIME_ISSUED, OnTimeIssued)
+	ON_COMMAND(ID_RENEWABLE_UNTIL, OnRenewableUntil)
+        ON_COMMAND(ID_SHOW_TICKET_FLAGS, OnShowTicketFlags)
 	ON_COMMAND(ID_UPPERCASE_REALM, OnUppercaseRealm)
 	ON_COMMAND(ID_KILL_TIX_ONEXIT, OnKillTixOnExit)
 	ON_WM_DESTROY()
@@ -341,6 +344,11 @@ VOID CLeashView::OnShowWindow(BOOL bShow, UINT nStatus)
 
         // Public IP Address
         m_publicIPAddress = pLeash_get_default_publicip();
+
+        // @TODO: get/set defaults for these
+        m_showRenewableUntil = FALSE;
+        m_showTicketFlags = FALSE;
+        m_showTimeIssued = FALSE;
 
         OnLargeIcons();
     }
@@ -1484,6 +1492,30 @@ VOID CLeashView::OnDebugMode()
     { // displays the Debug Window
         m_pDebugWindow->Create(debugFilePath);
     }
+}
+
+VOID CLeashView::OnRenewableUntil()
+{
+    m_showRenewableUntil = !m_showRenewableUntil;
+    if (m_hMenu)
+        CheckMenuItem(m_hMenu, ID_RENEWABLE_UNTIL, 
+                      m_showRenewableUntil ? MF_CHECKED : MF_UNCHECKED);
+}
+
+VOID CLeashView::OnShowTicketFlags()
+{
+    m_showTicketFlags = !m_showTicketFlags;
+    if (m_hMenu)
+        CheckMenuItem(m_hMenu, ID_SHOW_TICKET_FLAGS, 
+                      m_showTicketFlags ? MF_CHECKED : MF_UNCHECKED);
+}
+
+VOID CLeashView::OnTimeIssued()
+{
+    m_showTimeIssued = !m_showTimeIssued;
+    if (m_hMenu)
+        CheckMenuItem(m_hMenu, ID_TIME_ISSUED, 
+                      m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
 }
 
 VOID CLeashView::OnLargeIcons()
