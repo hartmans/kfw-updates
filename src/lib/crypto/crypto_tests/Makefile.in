@@ -6,7 +6,7 @@ PROG_LIBPATH=-L$(TOPLIBD)
 PROG_RPATH=$(KRB5_LIBDIR)
 DEFS=
 
-##WIN32##all-windows:: $(OUTPRE)t_str2key.exe
+##WIN32##all-windows:: #$(OUTPRE)t_str2key.exe
 
 EXTRADEPSRCS=\
 	$(srcdir)/t_nfold.c	\
