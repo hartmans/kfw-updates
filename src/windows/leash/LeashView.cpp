@@ -1690,11 +1690,6 @@ VOID CLeashView::OnDestroy()
 
 VOID CLeashView::OnUpdateDestroyTicket(CCmdUI* pCmdUI)
 {
-    if (!CLeashApp::m_hAfsDLL)
-        pCmdUI->SetText("&Destroy Ticket(s)\tCtrl+D");
-    else
-        pCmdUI->SetText("&Destroy Ticket(s)/Token(s)\tCtrl+D");
-
     if (WaitForSingleObject( ticketinfo.lockObj, INFINITE ) != WAIT_OBJECT_0)
         throw("Unable to lock ticketinfo");
     BOOL b_enable =!ticketinfo.Krb4.btickets && !ticketinfo.Krb5.btickets && !ticketinfo.Afs.btickets;
@@ -1708,11 +1703,6 @@ VOID CLeashView::OnUpdateDestroyTicket(CCmdUI* pCmdUI)
 
 VOID CLeashView::OnUpdateInitTicket(CCmdUI* pCmdUI)
 {
-    if (!CLeashApp::m_hAfsDLL)
-        pCmdUI->SetText("&Get Ticket(s)\tCtrl+T");
-    else
-        pCmdUI->SetText("&Get Ticket(s)/Token(s)\tCtrl+T");
-
     if (
 ////Is this logic correct?
 #ifndef NO_KRB4
@@ -1727,11 +1717,6 @@ VOID CLeashView::OnUpdateInitTicket(CCmdUI* pCmdUI)
 
 VOID CLeashView::OnUpdateRenewTicket(CCmdUI* pCmdUI)
 {
-    if (!CLeashApp::m_hAfsDLL)
-        pCmdUI->SetText("&Renew Ticket(s)\tCtrl+R");
-    else
-        pCmdUI->SetText("&Renew Ticket(s)/Token(s)\tCtrl+R");
-
     if (WaitForSingleObject( ticketinfo.lockObj, INFINITE ) != WAIT_OBJECT_0)
         throw("Unable to lock ticketinfo");
     BOOL b_enable = !(
