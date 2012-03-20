@@ -346,9 +346,9 @@ VOID CLeashView::OnShowWindow(BOOL bShow, UINT nStatus)
         m_publicIPAddress = pLeash_get_default_publicip();
 
         // @TODO: get/set defaults for these
-        m_showRenewableUntil = FALSE;
-        m_showTicketFlags = FALSE;
-        m_showTimeIssued = FALSE;
+        m_showRenewableUntil = m_pApp->GetProfileInt("Settings", "ShowRenewableUntil", OFF);
+        m_showTicketFlags = m_pApp->GetProfileInt("Settings", "ShowTicketFlags", OFF);
+        m_showTimeIssued = m_pApp->GetProfileInt("Settings", "ShowTimeIssued", OFF);
 
         OnLargeIcons();
     }
@@ -1348,6 +1348,16 @@ VOID CLeashView::OnActivateView(BOOL bActivate, CView* pActivateView,
     else
         check = CheckMenuItem(m_hMenu, ID_UPPERCASE_REALM, MF_CHECKED);
 
+    CheckMenuItem(m_hMenu, ID_SHOW_TICKET_FLAGS,
+                  m_showTicketFlags ? MF_CHECKED : MF_UNCHECKED);
+
+    CheckMenuItem(m_hMenu, ID_RENEWABLE_UNTIL,
+                  m_showRenewableUntil ? MF_CHECKED : MF_UNCHECKED);
+
+    CheckMenuItem(m_hMenu, ID_TIME_ISSUED,
+                  m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
+
+
     if (!m_lowTicketAlarm)
     {
         m_lowTicketAlarmSound = FALSE;
@@ -1500,6 +1510,8 @@ VOID CLeashView::OnRenewableUntil()
     if (m_hMenu)
         CheckMenuItem(m_hMenu, ID_RENEWABLE_UNTIL, 
                       m_showRenewableUntil ? MF_CHECKED : MF_UNCHECKED);
+    if (m_pApp)
+        m_pApp->WriteProfileInt("Settings", "ShowRenewableUntil", m_showRenewableUntil);
 }
 
 VOID CLeashView::OnShowTicketFlags()
@@ -1508,6 +1520,8 @@ VOID CLeashView::OnShowTicketFlags()
     if (m_hMenu)
         CheckMenuItem(m_hMenu, ID_SHOW_TICKET_FLAGS, 
                       m_showTicketFlags ? MF_CHECKED : MF_UNCHECKED);
+    if (m_pApp)
+        m_pApp->WriteProfileInt("Settings", "ShowTicketFlags", m_showTicketFlags);
 }
 
 VOID CLeashView::OnTimeIssued()
@@ -1516,6 +1530,8 @@ VOID CLeashView::OnTimeIssued()
     if (m_hMenu)
         CheckMenuItem(m_hMenu, ID_TIME_ISSUED, 
                       m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
+    if (m_pApp)
+        m_pApp->WriteProfileInt("Settings", "ShowTimeIssued", m_showTimeIssued);
 }
 
 VOID CLeashView::OnLargeIcons()
