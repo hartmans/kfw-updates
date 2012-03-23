@@ -86,6 +86,9 @@ DECL_FUNC_PTR(krb5_free_default_realm);
 DECL_FUNC_PTR(krb5_principal_compare);
 DECL_FUNC_PTR(krb5_string_to_deltat);
 DECL_FUNC_PTR(krb5_is_config_principal);
+DECL_FUNC_PTR(krb5_cccol_cursor_new);
+DECL_FUNC_PTR(krb5_cccol_cursor_free);
+DECL_FUNC_PTR(krb5_cccol_cursor_next);
 
 // ComErr functions
 DECL_FUNC_PTR(com_err);
@@ -186,6 +189,9 @@ FUNC_INFO k5_fi[] = {
     MAKE_FUNC_INFO(krb5_principal_compare),
     MAKE_FUNC_INFO(krb5_string_to_deltat),
     MAKE_FUNC_INFO(krb5_is_config_principal),
+    MAKE_FUNC_INFO(krb5_cccol_cursor_new),
+    MAKE_FUNC_INFO(krb5_cccol_cursor_next),
+    MAKE_FUNC_INFO(krb5_cccol_cursor_free),
     END_FUNC_INFO
 };
 

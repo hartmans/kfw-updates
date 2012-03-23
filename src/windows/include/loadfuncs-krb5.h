@@ -1767,4 +1767,25 @@ TYPEDEF_FUNC(
     krb5_is_config_principal,
     (krb5_context, krb5_const_principal)
     );
+
+TYPEDEF_FUNC(
+    krb5_error_code,
+    KRB5_CALLCONV,
+    krb5_cccol_cursor_new,
+    (krb5_context, krb5_cccol_cursor *)
+    );
+
+TYPEDEF_FUNC(
+    krb5_error_code,
+    KRB5_CALLCONV,
+    krb5_cccol_cursor_next,
+    (krb5_context, krb5_cccol_cursor cursor, krb5_ccache *)
+    );
+
+TYPEDEF_FUNC(
+    krb5_error_code,
+    KRB5_CALLCONV,
+    krb5_cccol_cursor_free,
+    (krb5_context, krb5_cccol_cursor *cursor)
+    );
 #endif /* __LOADFUNCS_KRB5_H__ */
