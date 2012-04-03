@@ -1256,7 +1256,7 @@ VOID CLeashView::OnUpdateDisplay()
         m_tvinsert.item.iSelectedImage = NONE_PARENT_NODE;
         m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
 
-        if (CMainFrame::m_wndToolBar)
+/*        if (CMainFrame::m_wndToolBar)
         {
             CToolBarCtrl *_toolBar = NULL;
             CToolBarCtrl& toolBar = CMainFrame::m_wndToolBar.GetToolBarCtrl();
@@ -1271,12 +1271,13 @@ VOID CLeashView::OnUpdateDisplay()
                            MB_OK|MB_ICONSTOP);
             }
         }
+*/
     }
     else
     {
         // We have some tickets
         m_pTree->SetItemText(m_hPrincipal, sPrincipal);
-
+/*
         if (CMainFrame::m_wndToolBar)
         {
             CToolBarCtrl *_toolBar = NULL;
@@ -1291,6 +1292,7 @@ VOID CLeashView::OnUpdateDisplay()
                 AfxMessageBox("There is a problem with the Leash Toolbar!", MB_OK|MB_ICONSTOP);
             }
         }
+*/
     }
     ReleaseMutex(ticketinfo.lockObj);
 }
