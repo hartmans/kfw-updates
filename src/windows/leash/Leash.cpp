@@ -67,6 +67,7 @@ HINSTANCE CLeashApp::m_hToolHelp32 = 0;
 krb5_context CLeashApp::m_krbv5_context = 0;
 profile_t CLeashApp::m_krbv5_profile = 0;
 HINSTANCE CLeashApp::m_hKrbLSA = 0;
+int CLeashApp::m_useRibbon = 0;
 
 /////////////////////////////////////////////////////////////////////////////
 // CLeashApp
@@ -151,6 +152,7 @@ void CLeashApp::ParseParam (LPCTSTR lpszParam,BOOL bFlag,BOOL bLast)
 extern "C" {
     LRESULT WINAPI LeashWindowProc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     {
+//        printf("Handling Msg: %x, WPARAM: %x, LPARAM: %x\n", Msg, wParam, lParam);
         switch ( Msg ) {
         case WM_SYSCOMMAND:
             if (SC_CLOSE == (wParam & 0xfff0)) {
@@ -190,19 +192,21 @@ BOOL CLeashApp::InitInstance()
 
     // Check for args (switches)
     LPCTSTR exeFile		= __targv[0];
-    LPCTSTR optionParam =  __targv[1];
+    for (int argi = 1; argi < __argc; argi++) {
+        LPCTSTR optionParam =  __targv[argi];
 
-    if (optionParam)
-    {
+        if (!optionParam)
+            continue;
+
         if (*optionParam  == '-' || *optionParam  == '/')
         {
             if (0 == stricmp(optionParam+1, "kinit") ||
                 0 == stricmp(optionParam+1, "i"))
             {
                 LSH_DLGINFO_EX ldi;
-		char username[64]="";
-		char realm[192]="";
-		int i=0, j=0;
+                char username[64]="";
+                char realm[192]="";
+                int i=0, j=0;
                 TicketList* ticketList = NULL;
                 if (WaitForSingleObject( ticketinfo.lockObj, INFINITE ) != WAIT_OBJECT_0)
                     throw("Unable to lock ticketinfo");
@@ -311,6 +315,10 @@ BOOL CLeashApp::InitInstance()
                      0 == stricmp(optionParam+1, "c"))
             {
                 CreateConsoleEcho();
+            }
+            else if (0 == stricmp(optionParam+1, "ribbon"))
+            {
+                m_useRibbon = TRUE;
             }
             else
             {
