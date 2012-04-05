@@ -67,7 +67,7 @@ HINSTANCE CLeashApp::m_hToolHelp32 = 0;
 krb5_context CLeashApp::m_krbv5_context = 0;
 profile_t CLeashApp::m_krbv5_profile = 0;
 HINSTANCE CLeashApp::m_hKrbLSA = 0;
-int CLeashApp::m_useRibbon = 0;
+int CLeashApp::m_useRibbon = TRUE;
 
 /////////////////////////////////////////////////////////////////////////////
 // CLeashApp
@@ -316,9 +316,9 @@ BOOL CLeashApp::InitInstance()
             {
                 CreateConsoleEcho();
             }
-            else if (0 == stricmp(optionParam+1, "ribbon"))
+            else if (0 == stricmp(optionParam+1, "noribbon"))
             {
-                m_useRibbon = TRUE;
+                m_useRibbon = FALSE;
             }
             else
             {
