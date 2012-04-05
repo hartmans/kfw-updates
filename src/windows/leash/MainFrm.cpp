@@ -99,7 +99,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         m_wndRibbonBar.LoadFromResource(IDR_RIBBON1);
 
         m_wndApplicationButton.SetVisible(FALSE);
-        m_wndRibbonBar.SetApplicationButton(&m_wndApplicationButton, CSize());
+        // Uncomment the next line to hide the application button
+//        m_wndRibbonBar.SetApplicationButton(&m_wndApplicationButton, CSize());
     }
 
 	if (CLeashFrame::OnCreate(lpCreateStruct) == -1)

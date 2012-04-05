@@ -61,7 +61,10 @@ BEGIN_MESSAGE_MAP(CLeashView, CFormView)
 	ON_COMMAND(ID_LARGE_ICONS, OnLargeIcons)
 	ON_COMMAND(ID_TIME_ISSUED, OnTimeIssued)
 	ON_COMMAND(ID_RENEWABLE_UNTIL, OnRenewableUntil)
-        ON_COMMAND(ID_SHOW_TICKET_FLAGS, OnShowTicketFlags)
+    ON_COMMAND(ID_SHOW_TICKET_FLAGS, OnShowTicketFlags)
+    ON_UPDATE_COMMAND_UI(ID_TIME_ISSUED, OnUpdateTimeIssued)
+    ON_UPDATE_COMMAND_UI(ID_RENEWABLE_UNTIL, OnUpdateRenewableUntil)
+    ON_UPDATE_COMMAND_UI(ID_SHOW_TICKET_FLAGS, OnUpdateShowTicketFlags)
 	ON_COMMAND(ID_UPPERCASE_REALM, OnUppercaseRealm)
 	ON_COMMAND(ID_KILL_TIX_ONEXIT, OnKillTixOnExit)
 	ON_WM_DESTROY()
@@ -1498,6 +1501,11 @@ VOID CLeashView::OnRenewableUntil()
         m_pApp->WriteProfileInt("Settings", "ShowRenewableUntil", m_showRenewableUntil);
 }
 
+VOID CLeashView::OnUpdateRenewableUntil(CCmdUI *pCmdUI)
+{
+    pCmdUI->SetCheck(m_showRenewableUntil);
+}
+
 VOID CLeashView::OnShowTicketFlags()
 {
     m_showTicketFlags = !m_showTicketFlags;
@@ -1508,6 +1516,11 @@ VOID CLeashView::OnShowTicketFlags()
         m_pApp->WriteProfileInt("Settings", "ShowTicketFlags", m_showTicketFlags);
 }
 
+VOID CLeashView::OnUpdateShowTicketFlags(CCmdUI *pCmdUI)
+{
+    pCmdUI->SetCheck(m_showTicketFlags);
+}
+
 VOID CLeashView::OnTimeIssued()
 {
     m_showTimeIssued = !m_showTimeIssued;
@@ -1516,6 +1529,11 @@ VOID CLeashView::OnTimeIssued()
                       m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
     if (m_pApp)
         m_pApp->WriteProfileInt("Settings", "ShowTimeIssued", m_showTimeIssued);
+}
+
+VOID CLeashView::OnUpdateTimeIssued(CCmdUI *pCmdUI)
+{
+    pCmdUI->SetCheck(m_showTimeIssued);
 }
 
 VOID CLeashView::OnLargeIcons()

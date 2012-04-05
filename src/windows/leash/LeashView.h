@@ -226,9 +226,9 @@ protected:
 	afx_msg VOID OnSynTime();
 	afx_msg VOID OnDebugMode();
 	afx_msg VOID OnLargeIcons();
-        afx_msg VOID OnTimeIssued();
-        afx_msg VOID OnRenewableUntil();
-        afx_msg VOID OnShowTicketFlags();
+    afx_msg VOID OnTimeIssued();
+    afx_msg VOID OnRenewableUntil();
+    afx_msg VOID OnShowTicketFlags();
 	afx_msg VOID OnUppercaseRealm();
 	afx_msg VOID OnKillTixOnExit();
 	afx_msg VOID OnDestroy();
@@ -236,6 +236,9 @@ protected:
 	afx_msg VOID OnUpdateImportTicket(CCmdUI* pCmdUI);
 	afx_msg VOID OnUpdateInitTicket(CCmdUI* pCmdUI);
 	afx_msg VOID OnUpdateRenewTicket(CCmdUI* pCmdUI);
+	afx_msg VOID OnUpdateTimeIssued(CCmdUI* pCmdUI);
+	afx_msg VOID OnUpdateRenewableUntil(CCmdUI* pCmdUI);
+	afx_msg VOID OnUpdateShowTicketFlags(CCmdUI* pCmdUI);
 	afx_msg VOID OnAppAbout();
 	afx_msg VOID OnAfsControlPanel();
 	afx_msg VOID OnUpdateDebugMode(CCmdUI* pCmdUI);

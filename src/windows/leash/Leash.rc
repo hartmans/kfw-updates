@@ -787,6 +787,7 @@ END
 IDR_MAINFRAME           BITMAP                  "res\\Leash_toolbar.bmp"
 IDB_HOMESMALL           BITMAP                  "res\\homesmall.bmp"
 IDB_HOMELARGE           BITMAP                  "res\\homelarge.bmp"
+IDB_BITMAP2             BITMAP                  "res\\main.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -862,7 +863,7 @@ STRINGTABLE
 BEGIN
     ID_KILL_TIX_ONEXIT      "Dispose of or keep tickets/tokens upon exiting Leash"
     ID_LARGE_ICONS          "Show large or small tree icons"
-    ID_UPPERCASE_REALM      "Force upper or lower case realm name"
+    ID_UPPERCASE_REALM      "Allow mixed case or force upper case realm name"
     ID_OPTIONS_RESETWINDOWSIZE 
                             "Puts Leash's main window back to it's default size "
     ID_RESET_WINDOW_SIZE    "Refresh Leash window to it's default size/position"
@@ -871,6 +872,12 @@ BEGIN
     ID_OPTIONS_LOWTICKETALARMSOUND 
                             "Turn alarm off or on,  when ticket time is low"
     ID_LOW_TICKET_ALARM     "Turn alarm on or off, on low ticket(s)/token(s) times"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ENCRYPTION_TYPE      "Display ticket encryption type column"
+    ID_VALID_UNTIL          "Display ticket valid until time column"
 END
 
 #endif    // English (United States) resources
