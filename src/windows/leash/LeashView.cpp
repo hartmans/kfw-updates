@@ -863,6 +863,28 @@ VOID CLeashView::OnUpdateDisplay()
         return;
     }
 
+    m_pList = (CListCtrl*) GetDlgItem(IDC_LEASH_MAINVIEW);
+    m_pList->DeleteAllItems();
+    int nColumnCount = m_pList->GetHeaderCtrl()->GetItemCount();
+    // Delete all of the columns.
+    for (int i=0; i < nColumnCount; i++)
+	    m_pList->DeleteColumn(0);
+
+
+    int columnIndex = 0;
+    int itemIndex = 0;
+    m_pList->InsertColumn(columnIndex++, ("Principal"), LVCFMT_LEFT, 100, itemIndex++);
+    if (m_showValidUntil)
+        m_pList->InsertColumn(columnIndex++, ("Valid Until"), LVCFMT_LEFT, 100, itemIndex++);
+    if (m_showRenewableUntil)
+        m_pList->InsertColumn(columnIndex++, ("Renewable Until"), LVCFMT_LEFT, 100, itemIndex++);
+    if (m_showTicketFlags)
+        m_pList->InsertColumn(columnIndex++, ("Flags"), LVCFMT_LEFT, 100, itemIndex++);
+    if (m_showEncryptionType)
+        m_pList->InsertColumn(columnIndex++, ("Encryption Type"), LVCFMT_LEFT, 100, itemIndex++);
+
+
+
     m_pImageList = &m_imageList;
     if (!m_pImageList)
     {
@@ -1519,6 +1541,8 @@ VOID CLeashView::OnRenewableUntil()
                       m_showRenewableUntil ? MF_CHECKED : MF_UNCHECKED);
     if (m_pApp)
         m_pApp->WriteProfileInt("Settings", "ShowRenewableUntil", m_showRenewableUntil);
+
+    OnUpdateDisplay();
 }
 
 VOID CLeashView::OnUpdateRenewableUntil(CCmdUI *pCmdUI)
@@ -1534,6 +1558,7 @@ VOID CLeashView::OnShowTicketFlags()
                       m_showTicketFlags ? MF_CHECKED : MF_UNCHECKED);
     if (m_pApp)
         m_pApp->WriteProfileInt("Settings", "ShowTicketFlags", m_showTicketFlags);
+    OnUpdateDisplay();
 }
 
 VOID CLeashView::OnUpdateShowTicketFlags(CCmdUI *pCmdUI)
@@ -1549,6 +1574,7 @@ VOID CLeashView::OnTimeIssued()
                       m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
     if (m_pApp)
         m_pApp->WriteProfileInt("Settings", "ShowTimeIssued", m_showTimeIssued);
+    OnUpdateDisplay();
 }
 
 VOID CLeashView::OnUpdateTimeIssued(CCmdUI *pCmdUI)
@@ -1561,6 +1587,7 @@ VOID CLeashView::OnValidUntil()
     m_showValidUntil = !m_showValidUntil;
     if (m_pApp)
         m_pApp->WriteProfileInt("Settings", "ShowValidUntil", m_showValidUntil);
+    OnUpdateDisplay();
 }
 
 VOID CLeashView::OnUpdateValidUntil(CCmdUI *pCmdUI)
@@ -1573,6 +1600,7 @@ VOID CLeashView::OnEncryptionType()
     m_showEncryptionType = !m_showEncryptionType;
     if (m_pApp)
         m_pApp->WriteProfileInt("Settings", "ShowEncryptionType", m_showEncryptionType);
+    OnUpdateDisplay();
 }
 
 VOID CLeashView::OnUpdateEncryptionType(CCmdUI *pCmdUI)

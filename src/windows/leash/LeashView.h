@@ -81,6 +81,7 @@ private:
 	CImageList			m_imageList;
 	CImageList			*m_pImageList;
     CTreeCtrl*			m_pTree;
+    CListCtrl*          m_pList;
 	CWinApp*			m_pApp;
 	HTREEITEM			m_hPrincipal;
 ////@#+Remove
