@@ -40,9 +40,9 @@ static CHAR THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CLeashView
 
-IMPLEMENT_DYNCREATE(CLeashView, CFormView)
+IMPLEMENT_DYNCREATE(CLeashView, CListView)
 
-BEGIN_MESSAGE_MAP(CLeashView, CFormView)
+BEGIN_MESSAGE_MAP(CLeashView, CListView)
 	//{{AFX_MSG_MAP(CLeashView)
     ON_MESSAGE(WM_WARNINGPOPUP, OnWarningPopup)
 	ON_MESSAGE(WM_GOODBYE, OnGoodbye)
@@ -106,6 +106,9 @@ BEGIN_MESSAGE_MAP(CLeashView, CFormView)
 	ON_WM_VSCROLL()
     ON_WM_SYSCOLORCHANGE()
     ON_MESSAGE(ID_OBTAIN_TGT_WITH_LPARAM, OnObtainTGTWithParam)
+    ON_MESSAGE(LVM_SETCOLUMNWIDTH, OnSetColumnWidth)
+    ON_MESSAGE(LVM_SETCOLUMN, OnSetColumn)
+    ON_NOTIFY(HDN_ENDTRACK, 0, OnEndtrackListCtrl)
 	//}}AFX_MSG_MAP
 
 END_MESSAGE_MAP()
@@ -152,8 +155,7 @@ void krb5TimestampToFileTime(krb5_timestamp t, LPFILETIME pft)
 /////////////////////////////////////////////////////////////////////////////
 // CLeashView construction/destruction
 
-CLeashView::CLeashView():
-CFormView(CLeashView::IDD)
+CLeashView::CLeashView()
 {
 ////@#+Need removing as well!
 #ifndef NO_KRB4
@@ -216,12 +218,26 @@ CLeashView::~CLeashView()
         delete m_pDebugWindow;
 }
 
+void CLeashView::OnEndtrackListCtrl(NMHDR* pNmHdr, LRESULT* pResult)
+{
+}
+
+LRESULT CLeashView::OnSetColumnWidth(WPARAM wParam, LPARAM lParam)
+{
+    return 0;
+}
+
+LRESULT CLeashView::OnSetColumn(WPARAM wParam, LPARAM lParam)
+{
+    return 0;
+}
+
 BOOL CLeashView::PreCreateWindow(CREATESTRUCT& cs)
 {
     // TODO: Modify the Window class or styles here by modifying
     //  the CREATESTRUCT cs
 
-    return CFormView::PreCreateWindow(cs);
+    return CListView::PreCreateWindow(cs);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -230,12 +246,12 @@ BOOL CLeashView::PreCreateWindow(CREATESTRUCT& cs)
 #ifdef _DEBUG
 VOID CLeashView::AssertValid() const
 {
-    CFormView::AssertValid();
+    CListView::AssertValid();
 }
 
 VOID CLeashView::Dump(CDumpContext& dc) const
 {
-    CFormView::Dump(dc);
+    CListView::Dump(dc);
 }
 
 /*
@@ -254,13 +270,13 @@ BOOL CLeashView::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName,
                         DWORD dwStyle, const RECT& rect, CWnd* pParentWnd,
                         UINT nID, CCreateContext* pContext)
 {
-    return CFormView::Create(lpszClassName, lpszWindowName, dwStyle, rect,
+    return CListView::Create(lpszClassName, lpszWindowName, dwStyle, rect,
                              pParentWnd, nID, pContext);
 }
 
 INT CLeashView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-    if (CFormView::OnCreate(lpCreateStruct) == -1)
+    if (CListView::OnCreate(lpCreateStruct) == -1)
         return -1;
     return 0;
 }
@@ -327,7 +343,7 @@ VOID  CLeashView::ApplicationInfoMissingMsg()
 
 VOID CLeashView::OnShowWindow(BOOL bShow, UINT nStatus)
 {
-    CFormView::OnShowWindow(bShow, nStatus);
+    CListView::OnShowWindow(bShow, nStatus);
 
     // Get State of Icons Size
     m_pApp = AfxGetApp();
@@ -855,35 +871,35 @@ VOID CLeashView::OnUpdateDisplay()
 {
     BOOL AfsEnabled = m_pApp->GetProfileInt("Settings", "AfsStatus", 1);
 
-    m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
-    if (!m_pTree)
-    {
-        AfxMessageBox("There is a problem finding the Ticket Tree!",
-                    MB_OK|MB_ICONSTOP);
-        return;
-    }
+//    m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
+//    if (!m_pTree)
+//    {
+//        AfxMessageBox("There is a problem finding the Ticket Tree!",
+//                    MB_OK|MB_ICONSTOP);
+//        return;
+//    }
 
-    m_pList = (CListCtrl*) GetDlgItem(IDC_LEASH_MAINVIEW);
-    m_pList->DeleteAllItems();
-    int nColumnCount = m_pList->GetHeaderCtrl()->GetItemCount();
+    CListCtrl& list = GetListCtrl();
+    list.DeleteAllItems();
+    ModifyStyle(LVS_TYPEMASK, LVS_REPORT);
+	UpdateWindow();
     // Delete all of the columns.
-    for (int i=0; i < nColumnCount; i++)
-	    m_pList->DeleteColumn(0);
+    while (list.DeleteColumn(0));
 
 
     int columnIndex = 0;
     int itemIndex = 0;
-    m_pList->InsertColumn(columnIndex++, ("Principal"), LVCFMT_LEFT, 100, itemIndex++);
+    list.InsertColumn(columnIndex++, ("Principal"), LVCFMT_LEFT, 100, itemIndex++);
     if (m_showValidUntil)
-        m_pList->InsertColumn(columnIndex++, ("Valid Until"), LVCFMT_LEFT, 100, itemIndex++);
+        list.InsertColumn(columnIndex++, ("Valid Until"), LVCFMT_LEFT, 100, itemIndex++);
     if (m_showRenewableUntil)
-        m_pList->InsertColumn(columnIndex++, ("Renewable Until"), LVCFMT_LEFT, 100, itemIndex++);
+        list.InsertColumn(columnIndex++, ("Renewable Until"), LVCFMT_LEFT, 100, itemIndex++);
     if (m_showTicketFlags)
-        m_pList->InsertColumn(columnIndex++, ("Flags"), LVCFMT_LEFT, 100, itemIndex++);
+        list.InsertColumn(columnIndex++, ("Flags"), LVCFMT_LEFT, 100, itemIndex++);
     if (m_showEncryptionType)
-        m_pList->InsertColumn(columnIndex++, ("Encryption Type"), LVCFMT_LEFT, 100, itemIndex++);
+        list.InsertColumn(columnIndex++, ("Encryption Type"), LVCFMT_LEFT, 100, itemIndex++);
 
-
+    list.SetColumnWidth(0, 120);
 
     m_pImageList = &m_imageList;
     if (!m_pImageList)
@@ -893,7 +909,7 @@ VOID CLeashView::OnUpdateDisplay()
         return;
     }
 
-    m_pTree->SetImageList(&m_imageList, TVSIL_NORMAL);
+//    m_pTree->SetImageList(&m_imageList, TVSIL_NORMAL);
 
     TV_INSERTSTRUCT m_tvinsert;
 
@@ -1060,7 +1076,7 @@ VOID CLeashView::OnUpdateDisplay()
     }
 
     // Tree Structure common values
-    m_pTree->DeleteAllItems();
+//    m_pTree->DeleteAllItems();
 
     m_tvinsert.hParent = NULL;
     m_tvinsert.hInsertAfter = TVI_LAST;
@@ -1109,7 +1125,7 @@ VOID CLeashView::OnUpdateDisplay()
     m_tvinsert.item.cChildren = 0;
     m_tvinsert.item.lParam = 0;
     m_tvinsert.hParent = NULL;
-    m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
+//    m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
 
     SetTrayIcon(NIM_MODIFY, m_tvinsert.item.iImage);
 
@@ -1132,7 +1148,7 @@ VOID CLeashView::OnUpdateDisplay()
         m_tvinsert.item.iSelectedImage = TICKET_NOT_INSTALLED;
     }
 
-    m_hKerb5 = m_pTree->InsertItem(&m_tvinsert);
+//    m_hKerb5 = m_pTree->InsertItem(&m_tvinsert);
 
     TicketList* tempList = m_listKrb5, *killList;
     while (tempList)
@@ -1141,21 +1157,21 @@ VOID CLeashView::OnUpdateDisplay()
         m_tvinsert.item.iImage = ticketIconStatusKrb5;
         m_tvinsert.item.iSelectedImage = ticketIconStatus_SelectedKrb5;
         m_tvinsert.item.pszText = tempList->theTicket;
-        m_hk5tkt = m_pTree->InsertItem(&m_tvinsert);
+//        m_hk5tkt = m_pTree->InsertItem(&m_tvinsert);
 
         if ( tempList->tktEncType ) {
             m_tvinsert.hParent = m_hk5tkt;
             m_tvinsert.item.iImage = TKT_ENCRYPTION;
             m_tvinsert.item.iSelectedImage = TKT_ENCRYPTION;
             m_tvinsert.item.pszText = tempList->tktEncType;
-            m_pTree->InsertItem(&m_tvinsert);
+//            m_pTree->InsertItem(&m_tvinsert);
         }
         if ( tempList->keyEncType ) {
             m_tvinsert.hParent = m_hk5tkt;
             m_tvinsert.item.iImage = TKT_SESSION;
             m_tvinsert.item.iSelectedImage = TKT_SESSION;
             m_tvinsert.item.pszText = tempList->keyEncType;
-            m_pTree->InsertItem(&m_tvinsert);
+//            m_pTree->InsertItem(&m_tvinsert);
         }
 
         if ( tempList->addrCount && tempList->addrList ) {
@@ -1164,7 +1180,7 @@ VOID CLeashView::OnUpdateDisplay()
                 m_tvinsert.item.iImage = TKT_ADDRESS;
                 m_tvinsert.item.iSelectedImage = TKT_ADDRESS;
                 m_tvinsert.item.pszText = tempList->addrList[n];
-                m_pTree->InsertItem(&m_tvinsert);
+//                m_pTree->InsertItem(&m_tvinsert);
             }
         }
         tempList = tempList->next;
@@ -1172,8 +1188,8 @@ VOID CLeashView::OnUpdateDisplay()
 
     pLeashFreeTicketList(&m_listKrb5);
 
-    if (m_hKerb5State == NODE_IS_EXPANDED)
-        m_pTree->Expand(m_hKerb5, TVE_EXPAND);
+//    if (m_hKerb5State == NODE_IS_EXPANDED)
+//        m_pTree->Expand(m_hKerb5, TVE_EXPAND);
 
     // Krb4
     m_tvinsert.hParent = m_hPrincipal;
@@ -1249,7 +1265,7 @@ VOID CLeashView::OnUpdateDisplay()
             m_tvinsert.item.iSelectedImage = TICKET_NOT_INSTALLED;
         }
 
-        m_hAFS = m_pTree->InsertItem(&m_tvinsert);
+//        m_hAFS = m_pTree->InsertItem(&m_tvinsert);
 
         m_tvinsert.hParent = m_hAFS;
         m_tvinsert.item.iImage = ticketIconStatusAfs;
@@ -1259,14 +1275,14 @@ VOID CLeashView::OnUpdateDisplay()
         while (tempList)
         {
             m_tvinsert.item.pszText = tempList->theTicket;
-            m_pTree->InsertItem(&m_tvinsert);
+//            m_pTree->InsertItem(&m_tvinsert);
             tempList = tempList->next;
         }
 
         pLeashFreeTicketList(&m_listAfs);
 
-        if (m_hAFSState == NODE_IS_EXPANDED)
-            m_pTree->Expand(m_hAFS, TVE_EXPAND);
+//        if (m_hAFSState == NODE_IS_EXPANDED)
+//            m_pTree->Expand(m_hAFS, TVE_EXPAND);
     }
     else if (!afsError && CLeashApp::m_hAfsDLL && !m_tvinsert.item.pszText)
     {
@@ -1293,13 +1309,13 @@ VOID CLeashView::OnUpdateDisplay()
     if (!ticketinfo.Krb4.btickets && !ticketinfo.Krb5.btickets && !ticketinfo.Afs.btickets) //&& sPrincipal.IsEmpty())
     {
         // No tickets
-        m_pTree->DeleteAllItems();
+//        m_pTree->DeleteAllItems();
 
         m_tvinsert.hParent = NULL;
         m_tvinsert.item.pszText = " No Tickets/Tokens ";
         m_tvinsert.item.iImage = NONE_PARENT_NODE;
         m_tvinsert.item.iSelectedImage = NONE_PARENT_NODE;
-        m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
+//        m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
 
 /*        if (CMainFrame::m_wndToolBar)
         {
@@ -1321,7 +1337,7 @@ VOID CLeashView::OnUpdateDisplay()
     else
     {
         // We have some tickets
-        m_pTree->SetItemText(m_hPrincipal, sPrincipal);
+//        m_pTree->SetItemText(m_hPrincipal, sPrincipal);
 /*
         if (CMainFrame::m_wndToolBar)
         {
@@ -1355,7 +1371,7 @@ VOID CLeashView::OnActivateView(BOOL bActivate, CView* pActivateView,
 
     if (m_alreadyPlayed)
     {
-        CFormView::OnActivateView(bActivate, pActivateView, pDeactiveView);
+        CListView::OnActivateView(bActivate, pActivateView, pDeactiveView);
         return;
     }
 
@@ -1452,7 +1468,7 @@ VOID CLeashView::OnActivateView(BOOL bActivate, CView* pActivateView,
 
     m_debugStartUp = FALSE;
 
-    CFormView::OnActivateView(bActivate, pActivateView, pDeactiveView);
+    CListView::OnActivateView(bActivate, pActivateView, pDeactiveView);
 }
 
 ////@#+Is this KRB4 only?
@@ -1712,7 +1728,8 @@ VOID CLeashView::OnLargeIcons()
     }
 
     m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
-    m_pTree->SetItemHeight(y+2);
+    if (m_pTree)
+        m_pTree->SetItemHeight(y+2);
 
     if (!m_startup)
         SendMessage(WM_COMMAND, ID_UPDATE_DISPLAY, 0);
@@ -1759,7 +1776,7 @@ VOID CLeashView::OnDestroy()
 {
     SetTrayIcon(NIM_DELETE);
 
-    CFormView::OnDestroy();
+    CListView::OnDestroy();
     if (WaitForSingleObject( ticketinfo.lockObj, INFINITE ) != WAIT_OBJECT_0)
         throw("Unable to lock ticketinfo");
     BOOL b_destroy = m_destroyTicketsOnExit && (ticketinfo.Krb4.btickets || ticketinfo.Krb5.btickets);
@@ -1979,7 +1996,7 @@ VOID CLeashView::OnAfsControlPanel()
 
 VOID CLeashView::OnInitialUpdate()
 {
-    CFormView::OnInitialUpdate();
+    CListView::OnInitialUpdate();
     CLeashApp::m_hProgram = ::FindWindow(_T("LEASH.0WNDCLASS"), NULL);
     EnableToolTips();
 }
@@ -2635,12 +2652,12 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
         WINDOWPLACEMENT headingWndpl;
         headingWndpl.length = sizeof(WINDOWPLACEMENT);
 
-        CWnd *heading = GetDlgItem(IDC_LABEL_KERB_TICKETS);
+ /*       CWnd *heading = GetDlgItem(IDC_LABEL_KERB_TICKETS);
         if (!heading->GetWindowPlacement(&headingWndpl))
         {
             AfxMessageBox("There is a problem getting Leash Heading size!",
                        MB_OK|MB_ICONSTOP);
-            return CFormView::PreTranslateMessage(pMsg);;
+            return CListView::PreTranslateMessage(pMsg);;
          }
 
         m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
@@ -2649,9 +2666,9 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
         {
             AfxMessageBox("There is a problem finding the Ticket Tree!",
                        MB_OK|MB_ICONSTOP);
-            return CFormView::PreTranslateMessage(pMsg);
+            return CListView::PreTranslateMessage(pMsg);
         }
-
+*/
         CRect rect;
         GetClientRect(&rect);
 
@@ -2662,7 +2679,7 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
         {
             AfxMessageBox("There is a problem getting Leash Window size!",
                        MB_OK|MB_ICONSTOP);
-            return CFormView::PreTranslateMessage(pMsg);
+            return CListView::PreTranslateMessage(pMsg);
         }
 
 
@@ -2672,12 +2689,12 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
 
         m_startup = FALSE;
 
-        if (!m_pTree->SetWindowPlacement(&wndpl))
+/*        if (!m_pTree->SetWindowPlacement(&wndpl))
         {
             AfxMessageBox("There is a problem setting Leash ticket Tree size!",
                        MB_OK|MB_ICONSTOP);
         }
-
+*/
 
         UpdateWindow();
 
@@ -2811,7 +2828,7 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
     }
 
 	if (::IsWindow(pMsg->hwnd))
-		return CFormView::PreTranslateMessage(pMsg);
+		return CListView::PreTranslateMessage(pMsg);
 	else
 		return FALSE;
 }

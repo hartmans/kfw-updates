@@ -68,7 +68,7 @@ enum ticketTimeLeft{NO_TICKETS, ZERO_MINUTES_LEFT, FIVE_MINUTES_LEFT, TEN_MINUTE
 
 class CLeashDebugWindow;
 
-class CLeashView : public CFormView
+class CLeashView : public CListView
 {
 private:
 ////@#+Remove
@@ -81,7 +81,6 @@ private:
 	CImageList			m_imageList;
 	CImageList			*m_pImageList;
     CTreeCtrl*			m_pTree;
-    CListCtrl*          m_pList;
 	CWinApp*			m_pApp;
 	HTREEITEM			m_hPrincipal;
 ////@#+Remove
@@ -273,7 +272,10 @@ protected:
 	afx_msg LRESULT OnGoodbye(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnTrayIcon(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnObtainTGTWithParam(WPARAM wParam, LPARAM lParam);
-	//}}AFX_MSG
+    afx_msg LRESULT OnSetColumnWidth(WPARAM wParam, LPARAM lParam);
+    afx_msg LRESULT OnSetColumn(WPARAM wParam, LPARAM lParam);
+    afx_msg void OnEndtrackListCtrl(NMHDR* pNmHdr, LRESULT* pResult);
+    //}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
 
