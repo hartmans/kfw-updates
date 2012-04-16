@@ -106,9 +106,7 @@ BEGIN_MESSAGE_MAP(CLeashView, CListView)
 	ON_WM_VSCROLL()
     ON_WM_SYSCOLORCHANGE()
     ON_MESSAGE(ID_OBTAIN_TGT_WITH_LPARAM, OnObtainTGTWithParam)
-    ON_MESSAGE(LVM_SETCOLUMNWIDTH, OnSetColumnWidth)
-    ON_MESSAGE(LVM_SETCOLUMN, OnSetColumn)
-    ON_NOTIFY(HDN_ENDTRACK, 0, OnEndtrackListCtrl)
+    ON_NOTIFY(HDN_ITEMCHANGED, 0, OnItemChanged)
 	//}}AFX_MSG_MAP
 
 END_MESSAGE_MAP()
@@ -136,6 +134,16 @@ BOOL CLeashView::m_lowTicketAlarmSound;
 INT  CLeashView::m_autoRenewalAttempted = 0;
 BOOL CLeashView::m_importedTickets = 0;
 LONG CLeashView::m_timerMsgNotInProgress = 1;
+ViewColumnInfo CLeashView::sm_viewColumns[] =
+{
+    {"Principal", true, -1, 100},                        // PRINCIPAL
+    {"Issued", false, ID_TIME_ISSUED, 100},              // TIME_ISSUED
+    {"Renewable Until", false, ID_RENEWABLE_UNTIL, 100}, // RENEWABLE_UNTIL
+    {"Valid Until", true, ID_VALID_UNTIL, 100},          // VALID_UNTIL
+    {"Encryption Type", false, ID_ENCRYPTION_TYPE, 100}, // ENCRYPTION_TYPE
+    {"Flags", false, ID_SHOW_TICKET_FLAGS, 100},         // TICKET_FLAGS
+};
+
 
 bool change_icon_size = true;
 #ifndef KRB5_TC_NOTICKET
@@ -218,18 +226,24 @@ CLeashView::~CLeashView()
         delete m_pDebugWindow;
 }
 
-void CLeashView::OnEndtrackListCtrl(NMHDR* pNmHdr, LRESULT* pResult)
+void CLeashView::OnItemChanged(NMHDR* pNmHdr, LRESULT* pResult)
 {
-}
+    NMHEADER* pHdr = (NMHEADER*)pNmHdr;
+    if (!pHdr->pitem)
+        return;
+    if (!pHdr->pitem->mask & HDI_WIDTH)
+        return;
 
-LRESULT CLeashView::OnSetColumnWidth(WPARAM wParam, LPARAM lParam)
-{
-    return 0;
-}
-
-LRESULT CLeashView::OnSetColumn(WPARAM wParam, LPARAM lParam)
-{
-    return 0;
+    // Sync column width and save to registry
+    for (int i=0, columnIndex=0; i<NUM_VIEW_COLUMNS; i++) {
+        ViewColumnInfo &info = sm_viewColumns[i];
+        if ((info.m_enabled) && (columnIndex++ == pHdr->iItem)) {
+            info.m_columnWidth = pHdr->pitem->cxy;
+            if (m_pApp)
+                m_pApp->WriteProfileInt("ColumnWidths", info.m_name, info.m_columnWidth);
+            break;
+        }
+    }
 }
 
 BOOL CLeashView::PreCreateWindow(CREATESTRUCT& cs)
@@ -382,12 +396,16 @@ VOID CLeashView::OnShowWindow(BOOL bShow, UINT nStatus)
         // Public IP Address
         m_publicIPAddress = pLeash_get_default_publicip();
 
-        // @TODO: get/set defaults for these
-        m_showRenewableUntil = m_pApp->GetProfileInt("Settings", "ShowRenewableUntil", OFF);
-        m_showTicketFlags = m_pApp->GetProfileInt("Settings", "ShowTicketFlags", OFF);
-        m_showTimeIssued = m_pApp->GetProfileInt("Settings", "ShowTimeIssued", OFF);
-        m_showValidUntil = m_pApp->GetProfileInt("Settings", "ShowValidUntil", ON);
-        m_showEncryptionType = m_pApp->GetProfileInt("Settings", "ShowEncryptionType", OFF);
+        // UI main display column widths
+        for (int i=0; i<NUM_VIEW_COLUMNS; i++) {
+            ViewColumnInfo &info = sm_viewColumns[i];
+            info.m_enabled = m_pApp->GetProfileInt("Settings",
+                                                   info.m_name,
+                                                   info.m_enabled);
+            info.m_columnWidth = m_pApp->GetProfileInt("ColumnWidths",
+                                                   info.m_name,
+                                                   info.m_columnWidth);
+        }
 
         OnLargeIcons();
     }
@@ -886,20 +904,19 @@ VOID CLeashView::OnUpdateDisplay()
     // Delete all of the columns.
     while (list.DeleteColumn(0));
 
-
+    // Reconstruct based on current options
     int columnIndex = 0;
     int itemIndex = 0;
-    list.InsertColumn(columnIndex++, ("Principal"), LVCFMT_LEFT, 100, itemIndex++);
-    if (m_showValidUntil)
-        list.InsertColumn(columnIndex++, ("Valid Until"), LVCFMT_LEFT, 100, itemIndex++);
-    if (m_showRenewableUntil)
-        list.InsertColumn(columnIndex++, ("Renewable Until"), LVCFMT_LEFT, 100, itemIndex++);
-    if (m_showTicketFlags)
-        list.InsertColumn(columnIndex++, ("Flags"), LVCFMT_LEFT, 100, itemIndex++);
-    if (m_showEncryptionType)
-        list.InsertColumn(columnIndex++, ("Encryption Type"), LVCFMT_LEFT, 100, itemIndex++);
-
-    list.SetColumnWidth(0, 120);
+    for (int i=0; i<NUM_VIEW_COLUMNS; i++) {
+        ViewColumnInfo &info = sm_viewColumns[i];
+        if (info.m_enabled) {
+            list.InsertColumn(columnIndex++,
+                (info.m_name), // @LOCALIZEME!
+                LVCFMT_LEFT,
+                info.m_columnWidth,
+                itemIndex++);
+        }
+    }
 
     m_pImageList = &m_imageList;
     if (!m_pImageList)
@@ -1407,15 +1424,12 @@ VOID CLeashView::OnActivateView(BOOL bActivate, CView* pActivateView,
         else
             check = CheckMenuItem(m_hMenu, ID_UPPERCASE_REALM, MF_CHECKED);
 
-        CheckMenuItem(m_hMenu, ID_SHOW_TICKET_FLAGS,
-                      m_showTicketFlags ? MF_CHECKED : MF_UNCHECKED);
-
-        CheckMenuItem(m_hMenu, ID_RENEWABLE_UNTIL,
-                      m_showRenewableUntil ? MF_CHECKED : MF_UNCHECKED);
-
-        CheckMenuItem(m_hMenu, ID_TIME_ISSUED,
-                      m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
-
+        for (int i=0; i<NUM_VIEW_COLUMNS; i++) {
+            ViewColumnInfo &info = sm_viewColumns[i];
+            if (info.m_id >= 0)
+                CheckMenuItem(m_hMenu, info.m_id,
+                              info.m_enabled ? MF_CHECKED : MF_UNCHECKED);
+        }
 
         if (!m_lowTicketAlarm)
             CheckMenuItem(m_hMenu, ID_LOW_TICKET_ALARM, MF_UNCHECKED);
@@ -1549,79 +1563,67 @@ VOID CLeashView::OnDebugMode()
     }
 }
 
+void CLeashView::ToggleViewColumn(eViewColumn viewOption)
+{
+    if ((viewOption < 0) || (viewOption >= NUM_VIEW_COLUMNS)) {
+        //LeashWarn("ToggleViewColumn(): invalid view option index %i", viewOption);
+        return;
+    }
+    ViewColumnInfo &info = sm_viewColumns[viewOption];
+    info.m_enabled = !info.m_enabled;
+    if (m_pApp)
+        m_pApp->WriteProfileInt("Settings", info.m_name, info.m_enabled);
+    OnUpdateDisplay();
+}
+
 VOID CLeashView::OnRenewableUntil()
 {
-    m_showRenewableUntil = !m_showRenewableUntil;
-    if (m_hMenu)
-        CheckMenuItem(m_hMenu, ID_RENEWABLE_UNTIL, 
-                      m_showRenewableUntil ? MF_CHECKED : MF_UNCHECKED);
-    if (m_pApp)
-        m_pApp->WriteProfileInt("Settings", "ShowRenewableUntil", m_showRenewableUntil);
-
-    OnUpdateDisplay();
+    ToggleViewColumn(RENEWABLE_UNTIL);
 }
 
 VOID CLeashView::OnUpdateRenewableUntil(CCmdUI *pCmdUI)
 {
-    pCmdUI->SetCheck(m_showRenewableUntil);
+    pCmdUI->SetCheck(sm_viewColumns[RENEWABLE_UNTIL].m_enabled);
 }
 
 VOID CLeashView::OnShowTicketFlags()
 {
-    m_showTicketFlags = !m_showTicketFlags;
-    if (m_hMenu)
-        CheckMenuItem(m_hMenu, ID_SHOW_TICKET_FLAGS, 
-                      m_showTicketFlags ? MF_CHECKED : MF_UNCHECKED);
-    if (m_pApp)
-        m_pApp->WriteProfileInt("Settings", "ShowTicketFlags", m_showTicketFlags);
-    OnUpdateDisplay();
+    ToggleViewColumn(TICKET_FLAGS);
 }
 
 VOID CLeashView::OnUpdateShowTicketFlags(CCmdUI *pCmdUI)
 {
-    pCmdUI->SetCheck(m_showTicketFlags);
+    pCmdUI->SetCheck(sm_viewColumns[TICKET_FLAGS].m_enabled);
 }
 
 VOID CLeashView::OnTimeIssued()
 {
-    m_showTimeIssued = !m_showTimeIssued;
-    if (m_hMenu)
-        CheckMenuItem(m_hMenu, ID_TIME_ISSUED, 
-                      m_showTimeIssued ? MF_CHECKED : MF_UNCHECKED);
-    if (m_pApp)
-        m_pApp->WriteProfileInt("Settings", "ShowTimeIssued", m_showTimeIssued);
-    OnUpdateDisplay();
+    ToggleViewColumn(TIME_ISSUED);
 }
 
 VOID CLeashView::OnUpdateTimeIssued(CCmdUI *pCmdUI)
 {
-    pCmdUI->SetCheck(m_showTimeIssued);
+    pCmdUI->SetCheck(sm_viewColumns[TIME_ISSUED].m_enabled);
 }
 
 VOID CLeashView::OnValidUntil()
 {
-    m_showValidUntil = !m_showValidUntil;
-    if (m_pApp)
-        m_pApp->WriteProfileInt("Settings", "ShowValidUntil", m_showValidUntil);
-    OnUpdateDisplay();
+    ToggleViewColumn(VALID_UNTIL);
 }
 
 VOID CLeashView::OnUpdateValidUntil(CCmdUI *pCmdUI)
 {
-    pCmdUI->SetCheck(m_showValidUntil);
+    pCmdUI->SetCheck(sm_viewColumns[VALID_UNTIL].m_enabled);
 }
 
 VOID CLeashView::OnEncryptionType()
 {
-    m_showEncryptionType = !m_showEncryptionType;
-    if (m_pApp)
-        m_pApp->WriteProfileInt("Settings", "ShowEncryptionType", m_showEncryptionType);
-    OnUpdateDisplay();
+    ToggleViewColumn(ENCRYPTION_TYPE);
 }
 
 VOID CLeashView::OnUpdateEncryptionType(CCmdUI *pCmdUI)
 {
-    pCmdUI->SetCheck(m_showEncryptionType);
+    pCmdUI->SetCheck(sm_viewColumns[ENCRYPTION_TYPE].m_enabled);
 }
 
 VOID CLeashView::OnLargeIcons()
@@ -2649,10 +2651,10 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
 
     if (CMainFrame::m_isBeingResized)
     {
-        WINDOWPLACEMENT headingWndpl;
+/*        WINDOWPLACEMENT headingWndpl;
         headingWndpl.length = sizeof(WINDOWPLACEMENT);
 
- /*       CWnd *heading = GetDlgItem(IDC_LABEL_KERB_TICKETS);
+        CWnd *heading = GetDlgItem(IDC_LABEL_KERB_TICKETS);
         if (!heading->GetWindowPlacement(&headingWndpl))
         {
             AfxMessageBox("There is a problem getting Leash Heading size!",
@@ -2668,7 +2670,7 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
                        MB_OK|MB_ICONSTOP);
             return CListView::PreTranslateMessage(pMsg);
         }
-*/
+
         CRect rect;
         GetClientRect(&rect);
 
@@ -2686,7 +2688,7 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
         wndpl.rcNormalPosition.top = rect.top + headingWndpl.rcNormalPosition.bottom;
         wndpl.rcNormalPosition.right = rect.right;
         wndpl.rcNormalPosition.bottom = rect.bottom;
-
+*/
         m_startup = FALSE;
 
 /*        if (!m_pTree->SetWindowPlacement(&wndpl))

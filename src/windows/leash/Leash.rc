@@ -121,6 +121,8 @@ BEGIN
     BEGIN
         MENUITEM "&Time Issued",                ID_TIME_ISSUED
         MENUITEM "&Renewable Until",            ID_RENEWABLE_UNTIL
+        MENUITEM "&Valid Until",                ID_VALID_UNTIL
+        MENUITEM "&Encryption Type",            ID_ENCRYPTION_TYPE
         MENUITEM "&Flags",                      ID_SHOW_TICKET_FLAGS
     END
     POPUP "&Options"
