@@ -98,7 +98,6 @@ private:
     CLeashDebugWindow*	m_pDebugWindow;
 	CImageList			m_imageList;
 	CImageList			*m_pImageList;
-    CTreeCtrl*			m_pTree;
 	CWinApp*			m_pApp;
 	HTREEITEM			m_hPrincipal;
 ////@#+Remove

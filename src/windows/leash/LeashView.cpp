@@ -196,7 +196,6 @@ CLeashView::CLeashView()
     m_lowTicketAlarmSound = FALSE;
     m_alreadyPlayed = FALSE;
     ResetTreeNodes();
-    m_pTree = NULL;
     m_hMenu = NULL;
     m_pApp = NULL;
     m_pImageList = NULL;
@@ -889,14 +888,6 @@ VOID CLeashView::OnUpdateDisplay()
 {
     BOOL AfsEnabled = m_pApp->GetProfileInt("Settings", "AfsStatus", 1);
 
-//    m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
-//    if (!m_pTree)
-//    {
-//        AfxMessageBox("There is a problem finding the Ticket Tree!",
-//                    MB_OK|MB_ICONSTOP);
-//        return;
-//    }
-
     CListCtrl& list = GetListCtrl();
     list.DeleteAllItems();
     ModifyStyle(LVS_TYPEMASK, LVS_REPORT);
@@ -925,8 +916,6 @@ VOID CLeashView::OnUpdateDisplay()
                    MB_OK|MB_ICONSTOP);
         return;
     }
-
-//    m_pTree->SetImageList(&m_imageList, TVSIL_NORMAL);
 
     TV_INSERTSTRUCT m_tvinsert;
 
@@ -1092,9 +1081,6 @@ VOID CLeashView::OnUpdateDisplay()
         iconStatusAfs = TICKET_NOT_INSTALLED;
     }
 
-    // Tree Structure common values
-//    m_pTree->DeleteAllItems();
-
     m_tvinsert.hParent = NULL;
     m_tvinsert.hInsertAfter = TVI_LAST;
     m_tvinsert.item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
@@ -1142,7 +1128,6 @@ VOID CLeashView::OnUpdateDisplay()
     m_tvinsert.item.cChildren = 0;
     m_tvinsert.item.lParam = 0;
     m_tvinsert.hParent = NULL;
-//    m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
 
     SetTrayIcon(NIM_MODIFY, m_tvinsert.item.iImage);
 
@@ -1165,8 +1150,6 @@ VOID CLeashView::OnUpdateDisplay()
         m_tvinsert.item.iSelectedImage = TICKET_NOT_INSTALLED;
     }
 
-//    m_hKerb5 = m_pTree->InsertItem(&m_tvinsert);
-
     TicketList* tempList = m_listKrb5, *killList;
     while (tempList)
     {
@@ -1174,21 +1157,18 @@ VOID CLeashView::OnUpdateDisplay()
         m_tvinsert.item.iImage = ticketIconStatusKrb5;
         m_tvinsert.item.iSelectedImage = ticketIconStatus_SelectedKrb5;
         m_tvinsert.item.pszText = tempList->theTicket;
-//        m_hk5tkt = m_pTree->InsertItem(&m_tvinsert);
 
         if ( tempList->tktEncType ) {
             m_tvinsert.hParent = m_hk5tkt;
             m_tvinsert.item.iImage = TKT_ENCRYPTION;
             m_tvinsert.item.iSelectedImage = TKT_ENCRYPTION;
             m_tvinsert.item.pszText = tempList->tktEncType;
-//            m_pTree->InsertItem(&m_tvinsert);
         }
         if ( tempList->keyEncType ) {
             m_tvinsert.hParent = m_hk5tkt;
             m_tvinsert.item.iImage = TKT_SESSION;
             m_tvinsert.item.iSelectedImage = TKT_SESSION;
             m_tvinsert.item.pszText = tempList->keyEncType;
-//            m_pTree->InsertItem(&m_tvinsert);
         }
 
         if ( tempList->addrCount && tempList->addrList ) {
@@ -1282,8 +1262,6 @@ VOID CLeashView::OnUpdateDisplay()
             m_tvinsert.item.iSelectedImage = TICKET_NOT_INSTALLED;
         }
 
-//        m_hAFS = m_pTree->InsertItem(&m_tvinsert);
-
         m_tvinsert.hParent = m_hAFS;
         m_tvinsert.item.iImage = ticketIconStatusAfs;
         m_tvinsert.item.iSelectedImage = ticketIconStatus_SelectedAfs;
@@ -1292,14 +1270,10 @@ VOID CLeashView::OnUpdateDisplay()
         while (tempList)
         {
             m_tvinsert.item.pszText = tempList->theTicket;
-//            m_pTree->InsertItem(&m_tvinsert);
             tempList = tempList->next;
         }
 
         pLeashFreeTicketList(&m_listAfs);
-
-//        if (m_hAFSState == NODE_IS_EXPANDED)
-//            m_pTree->Expand(m_hAFS, TVE_EXPAND);
     }
     else if (!afsError && CLeashApp::m_hAfsDLL && !m_tvinsert.item.pszText)
     {
@@ -1326,13 +1300,10 @@ VOID CLeashView::OnUpdateDisplay()
     if (!ticketinfo.Krb4.btickets && !ticketinfo.Krb5.btickets && !ticketinfo.Afs.btickets) //&& sPrincipal.IsEmpty())
     {
         // No tickets
-//        m_pTree->DeleteAllItems();
-
         m_tvinsert.hParent = NULL;
         m_tvinsert.item.pszText = " No Tickets/Tokens ";
         m_tvinsert.item.iImage = NONE_PARENT_NODE;
         m_tvinsert.item.iSelectedImage = NONE_PARENT_NODE;
-//        m_hPrincipal = m_pTree->InsertItem(&m_tvinsert);
 
 /*        if (CMainFrame::m_wndToolBar)
         {
@@ -1728,10 +1699,6 @@ VOID CLeashView::OnLargeIcons()
         }
         m_imageList.Add(hIcon[n]);
     }
-
-    m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
-    if (m_pTree)
-        m_pTree->SetItemHeight(y+2);
 
     if (!m_startup)
         SendMessage(WM_COMMAND, ID_UPDATE_DISPLAY, 0);
@@ -2651,180 +2618,9 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
 
     if (CMainFrame::m_isBeingResized)
     {
-/*        WINDOWPLACEMENT headingWndpl;
-        headingWndpl.length = sizeof(WINDOWPLACEMENT);
-
-        CWnd *heading = GetDlgItem(IDC_LABEL_KERB_TICKETS);
-        if (!heading->GetWindowPlacement(&headingWndpl))
-        {
-            AfxMessageBox("There is a problem getting Leash Heading size!",
-                       MB_OK|MB_ICONSTOP);
-            return CListView::PreTranslateMessage(pMsg);;
-         }
-
-        m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
-        VERIFY(m_pTree);
-        if (!m_pTree)
-        {
-            AfxMessageBox("There is a problem finding the Ticket Tree!",
-                       MB_OK|MB_ICONSTOP);
-            return CListView::PreTranslateMessage(pMsg);
-        }
-
-        CRect rect;
-        GetClientRect(&rect);
-
-        WINDOWPLACEMENT wndpl;
-        wndpl.length = sizeof(WINDOWPLACEMENT);
-
-        if (!GetWindowPlacement(&wndpl))
-        {
-            AfxMessageBox("There is a problem getting Leash Window size!",
-                       MB_OK|MB_ICONSTOP);
-            return CListView::PreTranslateMessage(pMsg);
-        }
-
-
-        wndpl.rcNormalPosition.top = rect.top + headingWndpl.rcNormalPosition.bottom;
-        wndpl.rcNormalPosition.right = rect.right;
-        wndpl.rcNormalPosition.bottom = rect.bottom;
-*/
         m_startup = FALSE;
 
-/*        if (!m_pTree->SetWindowPlacement(&wndpl))
-        {
-            AfxMessageBox("There is a problem setting Leash ticket Tree size!",
-                       MB_OK|MB_ICONSTOP);
-        }
-*/
-
         UpdateWindow();
-
-#ifdef COOL_SCROLL
-        // The follow code creates a cool scroll bar on the MainFrame
-           m_pTree = (CTreeCtrl*) GetDlgItem(IDC_TREEVIEW);
-           CWnd *pLabel = GetDlgItem(IDC_LABEL_KERB_TICKETS);
-
-           VERIFY(m_pTree);
-
-           // Sync Tree Frame with Main Frame
-           // WINDOWPLACEMENT wndpl;
-           WINDOWPLACEMENT wndplTree;
-           WINDOWPLACEMENT wndplLabel;
-           wndpl.length = sizeof(WINDOWPLACEMENT);
-           wndplTree.length = sizeof(WINDOWPLACEMENT);
-           wndplLabel.length = sizeof(WINDOWPLACEMENT);
-           GetWindowPlacement(&wndpl);
-           m_pTree->GetWindowPlacement(&wndplTree);
-           pLabel->GetWindowPlacement(&wndplLabel);
-
-           if (!m_startup)
-           {
-           if (ticketinfo.Krb4.btickets || ticketinfo.Krb5.btickets)
-           { // control scroll bars to TreeView
-           #define TICKET_LABEL_TOP 8
-           #define TICKET_LABEL_BOTTOM 28
-           #define TICKET_LABEL_RIGHT 398
-           #define RIGHT_FRAME_ADJUSTMENT 13
-           #define BOTTOM_FRAME_ADJUSTMENT 72
-           #define STRETCH_FACTOR 3
-
-           char theText[MAX_K_NAME_SZ+40];
-           int longestLine = 0;
-           int theHeight = 0;
-           BOOL disableScrollHorz = FALSE;
-           BOOL disableScrollVert = FALSE;
-           RECT rect;
-
-           HTREEITEM  xTree;
-           TV_ITEM item;
-           item.mask = TVIF_HANDLE | TVIF_TEXT;
-           item.cchTextMax = sizeof(theText);
-
-           xTree = m_hKerb4;
-           do
-           {
-           item.hItem = xTree;
-           item.pszText = theText;
-           VERIFY(m_pTree->GetItem(&item));
-
-           UINT offSet = m_pTree->GetIndent();
-           if (!m_pTree->GetItemRect(xTree, &rect, TRUE))
-           {
-           longestLine = 0;
-           theHeight = 0;
-           break;
-           }
-
-           if (rect.right > longestLine)
-           longestLine = rect.right + RIGHT_FRAME_ADJUSTMENT;
-
-           theHeight = rect.bottom + BOTTOM_FRAME_ADJUSTMENT;
-           }
-           while ((xTree = m_pTree->GetNextItem(xTree, TVGN_NEXTVISIBLE)));
-
-
-           // Horz
-           if (longestLine < wndpl.rcNormalPosition.right)
-           { // disable scroll
-           disableScrollHorz = TRUE;
-           SetScrollPos(SB_HORZ, 0, TRUE);
-           EnableScrollBar(SB_HORZ, ESB_DISABLE_BOTH);
-           }
-           else
-           { // enable scroll
-           EnableScrollBar(SB_HORZ, ESB_ENABLE_BOTH);
-           SetScrollRange(SB_HORZ, 0, longestLine , TRUE);
-           }
-
-           // Vert
-           if (theHeight < wndpl.rcNormalPosition.bottom)
-           { // disable scroll
-           disableScrollVert = TRUE;
-           SetScrollPos(SB_VERT, 0, TRUE);
-           EnableScrollBar(SB_VERT, ESB_DISABLE_BOTH);
-           }
-           else
-           { // enable scroll
-           EnableScrollBar(SB_VERT, ESB_ENABLE_BOTH);
-           SetScrollRange(SB_VERT, 0, theHeight, TRUE);
-           }
-
-
-           if (!disableScrollHorz)
-           {
-           wndpl.rcNormalPosition.left =
-           wndplTree.rcNormalPosition.left;
-
-           wndplLabel.rcNormalPosition.left =
-           wndpl.rcNormalPosition.left + 8;
-           }
-
-           if (!disableScrollVert)
-           {
-           wndpl.rcNormalPosition.top =
-           wndplTree.rcNormalPosition.top;
-           }
-           else
-           {
-           wndplLabel.rcNormalPosition.left =
-           wndpl.rcNormalPosition.left + 8;
-
-           wndplLabel.rcNormalPosition.top = TICKET_LABEL_TOP;
-           wndplLabel.rcNormalPosition.bottom = TICKET_LABEL_BOTTOM;
-           wndplLabel.rcNormalPosition.right = TICKET_LABEL_RIGHT;
-           }
-
-           wndpl.rcNormalPosition.right *= STRETCH_FACTOR;
-           wndpl.rcNormalPosition.bottom *= STRETCH_FACTOR;
-           }
-           }
-
-           m_startup = FALSE;
-
-           m_pTree->SetWindowPlacement(&wndpl);
-           pLabel->SetWindowPlacement(&wndplLabel);
-#endif /* COOL_SCROLL */
 
         CMainFrame::m_isBeingResized = FALSE;
     }
