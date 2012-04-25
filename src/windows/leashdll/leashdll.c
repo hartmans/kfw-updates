@@ -33,6 +33,7 @@ DECL_FUNC_PTR(krb5_get_init_creds_opt_set_address_list);
 DECL_FUNC_PTR(krb5_get_init_creds_opt_set_out_ccache);
 DECL_FUNC_PTR(krb5_get_init_creds_password);
 DECL_FUNC_PTR(krb5_build_principal_ext);
+DECL_FUNC_PTR(krb5_cc_get_name);
 DECL_FUNC_PTR(krb5_cc_resolve);
 DECL_FUNC_PTR(krb5_cc_default);
 DECL_FUNC_PTR(krb5_cc_default_name);
@@ -136,6 +137,7 @@ FUNC_INFO k5_fi[] = {
     MAKE_FUNC_INFO(krb5_get_init_creds_opt_set_out_ccache),
     MAKE_FUNC_INFO(krb5_get_init_creds_password),
     MAKE_FUNC_INFO(krb5_build_principal_ext),
+    MAKE_FUNC_INFO(krb5_cc_get_name),
     MAKE_FUNC_INFO(krb5_cc_resolve),
     MAKE_FUNC_INFO(krb5_cc_default),
     MAKE_FUNC_INFO(krb5_cc_default_name),

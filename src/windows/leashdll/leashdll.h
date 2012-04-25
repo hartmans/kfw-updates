@@ -176,6 +176,7 @@ extern DECL_FUNC_PTR(krb5_get_init_creds_opt_set_address_list);
 extern DECL_FUNC_PTR(krb5_get_init_creds_opt_set_out_ccache);
 extern DECL_FUNC_PTR(krb5_get_init_creds_password);
 extern DECL_FUNC_PTR(krb5_build_principal_ext);
+extern DECL_FUNC_PTR(krb5_cc_get_name);
 extern DECL_FUNC_PTR(krb5_cc_resolve);
 extern DECL_FUNC_PTR(krb5_cc_default);
 extern DECL_FUNC_PTR(krb5_cc_default_name);
