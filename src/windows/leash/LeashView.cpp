@@ -55,6 +55,7 @@ BEGIN_MESSAGE_MAP(CLeashView, CListView)
     ON_COMMAND(ID_IMPORT_TICKET, OnImportTicket)
 	ON_COMMAND(ID_DESTROY_TICKET, OnDestroyTicket)
 	ON_COMMAND(ID_CHANGE_PASSWORD, OnChangePassword)
+    ON_COMMAND(ID_MAKE_DEFAULT, OnMakeDefault)
 	ON_COMMAND(ID_UPDATE_DISPLAY, OnUpdateDisplay)
 	ON_COMMAND(ID_SYN_TIME, OnSynTime)
 	ON_COMMAND(ID_DEBUG_MODE, OnDebugMode)
@@ -94,6 +95,7 @@ BEGIN_MESSAGE_MAP(CLeashView, CListView)
 	ON_UPDATE_COMMAND_UI(ID_KRB4_PROPERTIES, OnUpdateKrb4Properties)
 	ON_UPDATE_COMMAND_UI(ID_KRB5_PROPERTIES, OnUpdateKrb5Properties)
 	ON_UPDATE_COMMAND_UI(ID_AFS_CONTROL_PANEL, OnUpdateAfsControlPanel)
+    ON_UPDATE_COMMAND_UI(ID_MAKE_DEFAULT, OnUpdateMakeDefault)
 	ON_COMMAND(ID_PROPERTIES, OnKrbProperties)
 	ON_UPDATE_COMMAND_UI(ID_PROPERTIES, OnUpdateProperties)
 	ON_COMMAND(ID_HELP_KERBEROS_, OnHelpKerberos)
@@ -885,6 +887,10 @@ VOID CLeashView::OnDestroyTicket()
     m_autoRenewalAttempted = 0;
 }
 
+VOID CLeashView::OnMakeDefault()
+{
+}
+
 VOID CLeashView::OnChangePassword()
 {
     if (!m_hWnd)
@@ -902,17 +908,13 @@ VOID CLeashView::OnChangePassword()
     char realm[192];
     char * principal = ticketinfo.Krb5.principal;
     int i=0, j=0;
-    for (; principal[i] && principal[i] != '@'; i++)
-    {
-	username[i] = principal[i];
-    }
+    if (principal)
+        for (; principal[i] && principal[i] != '@'; i++)
+	        username[i] = principal[i];
     username[i] = '\0';
-    if (principal[i]) {
-	for (i++ ; principal[i] ; i++, j++)
-	{
-	    realm[j] = principal[i];
-	}
-    }
+    if (principal && principal[i])
+	    for (i++ ; principal[i] ; i++, j++)
+	        realm[j] = principal[i];
     realm[j] = '\0';
     ReleaseMutex(ticketinfo.lockObj);
 
@@ -2188,24 +2190,26 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
                             ticketStatusKrb5.Format("Kerb-5 Ticket Life: < 1 min");
                         }
                     }
-
+#ifndef NO_STATUS_BAR
                     if (CMainFrame::m_wndStatusBar)
                     {
                         CMainFrame::m_wndStatusBar.SetPaneInfo(1, 111112, SBPS_NORMAL, 130);
                         CMainFrame::m_wndStatusBar.SetPaneText(1, ticketStatusKrb5, SBT_POPOUT);
                     }
+#endif
                 }
             }
             else
             {
                 // not installed
                 ticketStatusKrb5.Format("Kerb-5: Not Available");
-
+#ifndef NO_STATUS_BAR
                 if (CMainFrame::m_wndStatusBar)
                 {
                     CMainFrame::m_wndStatusBar.SetPaneInfo(1, 111112, SBPS_NORMAL, 130);
                     CMainFrame::m_wndStatusBar.SetPaneText(1, ticketStatusKrb5, SBT_POPOUT);
                 }
+#endif
             }
             //KRB5
 
@@ -2304,12 +2308,13 @@ BOOL CLeashView::PreTranslateMessage(MSG* pMsg)
                             ticketStatusAfs.Format("AFS Token Life: < 1 min");
                         }
                     }
-
+#ifndef NO_STATUS_BAR
                     if (CMainFrame::m_wndStatusBar)
                     {
                         CMainFrame::m_wndStatusBar.SetPaneInfo(3, 111113, SBPS_NORMAL, 130);
                         CMainFrame::m_wndStatusBar.SetPaneText(3, ticketStatusAfs, SBT_POPOUT);
                     }
+#endif
                 }
             }
             // AFS
@@ -2459,6 +2464,11 @@ VOID CLeashView::OnAutoRenew()
 VOID CLeashView::OnUpdateAutoRenew(CCmdUI* pCmdUI)
 {
     pCmdUI->SetCheck(m_autoRenewTickets);
+}
+
+VOID CLeashView::OnUpdateMakeDefault(CCmdUI* pCmdUI)
+{
+    // @TODO: enable if exactly one identity is selected and that identity is not currently the default
 }
 
 VOID CLeashView::AlarmBeep()
