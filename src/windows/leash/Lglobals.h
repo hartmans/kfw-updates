@@ -181,6 +181,8 @@ extern DECL_FUNC_PTR(krb5_unparse_name);
 extern DECL_FUNC_PTR(krb5_free_unparsed_name);
 extern DECL_FUNC_PTR(krb5_free_principal);
 extern DECL_FUNC_PTR(krb5_cc_close);
+extern DECL_FUNC_PTR(krb5_cc_destroy);
+extern DECL_FUNC_PTR(krb5_init_context);
 // extern DECL_FUNC_PTR(krb5_get_host_realm);
 
 // profile functions

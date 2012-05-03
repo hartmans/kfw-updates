@@ -663,6 +663,7 @@ DECL_FUNC_PTR(krb5_free_cred_contents);
 DECL_FUNC_PTR(krb5_cc_resolve);
 DECL_FUNC_PTR(krb5_unparse_name);
 DECL_FUNC_PTR(krb5_free_unparsed_name);
+DECL_FUNC_PTR(krb5_cc_destroy);
 
 FUNC_INFO krb5_fi[] = {
     MAKE_FUNC_INFO(krb5_cc_default_name),
@@ -685,6 +686,7 @@ FUNC_INFO krb5_fi[] = {
     MAKE_FUNC_INFO(krb5_cc_resolve),
     MAKE_FUNC_INFO(krb5_unparse_name),
     MAKE_FUNC_INFO(krb5_free_unparsed_name),
+    MAKE_FUNC_INFO(krb5_cc_destroy),
     END_FUNC_INFO
 };
 
