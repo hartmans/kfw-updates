@@ -52,6 +52,7 @@ TicketInfoWrapper ticketinfo;
 
 HWND CLeashApp::m_hProgram = 0;
 HINSTANCE CLeashApp::m_hLeashDLL = 0;
+HINSTANCE CLeashApp::m_hComErr = 0;
 ////@#+Remove
 #ifndef NO_KRB4
 HINSTANCE CLeashApp::m_hKrb4DLL = 0;
@@ -65,6 +66,7 @@ krb5_context CLeashApp::m_krbv5_context = 0;
 profile_t CLeashApp::m_krbv5_profile = 0;
 HINSTANCE CLeashApp::m_hKrbLSA = 0;
 int CLeashApp::m_useRibbon = TRUE;
+BOOL CLeashApp::m_bUpdateDisplay = FALSE;
 
 /////////////////////////////////////////////////////////////////////////////
 // CLeashApp
@@ -610,6 +612,12 @@ FUNC_INFO krb4_fi[] = {
 };
 #endif
 
+// com_err funcitons
+DECL_FUNC_PTR(error_message);
+FUNC_INFO ce_fi[] =  {
+    MAKE_FUNC_INFO(error_message),
+    END_FUNC_INFO
+};
 
 // psapi functions
 DECL_FUNC_PTR(GetModuleFileNameExA);
@@ -655,6 +663,18 @@ DECL_FUNC_PTR(krb5_cc_resolve);
 DECL_FUNC_PTR(krb5_unparse_name);
 DECL_FUNC_PTR(krb5_free_unparsed_name);
 DECL_FUNC_PTR(krb5_cc_destroy);
+DECL_FUNC_PTR(krb5_cccol_cursor_new);
+DECL_FUNC_PTR(krb5_cccol_cursor_free);
+DECL_FUNC_PTR(krb5_cccol_cursor_next);
+DECL_FUNC_PTR(krb5_cc_start_seq_get);
+DECL_FUNC_PTR(krb5_cc_next_cred);
+DECL_FUNC_PTR(krb5_cc_end_seq_get);
+DECL_FUNC_PTR(krb5_cc_get_name);
+DECL_FUNC_PTR(krb5_cc_set_flags);
+DECL_FUNC_PTR(krb5_is_config_principal);
+DECL_FUNC_PTR(krb5_free_ticket);
+DECL_FUNC_PTR(krb5_decode_ticket);
+
 
 FUNC_INFO krb5_fi[] = {
     MAKE_FUNC_INFO(krb5_cc_default_name),
@@ -678,6 +698,17 @@ FUNC_INFO krb5_fi[] = {
     MAKE_FUNC_INFO(krb5_unparse_name),
     MAKE_FUNC_INFO(krb5_free_unparsed_name),
     MAKE_FUNC_INFO(krb5_cc_destroy),
+    MAKE_FUNC_INFO(krb5_cccol_cursor_new),
+    MAKE_FUNC_INFO(krb5_cccol_cursor_next),
+    MAKE_FUNC_INFO(krb5_cccol_cursor_free),
+    MAKE_FUNC_INFO(krb5_cc_start_seq_get),
+    MAKE_FUNC_INFO(krb5_cc_next_cred),
+    MAKE_FUNC_INFO(krb5_cc_end_seq_get),
+    MAKE_FUNC_INFO(krb5_cc_get_name),
+    MAKE_FUNC_INFO(krb5_cc_set_flags),
+    MAKE_FUNC_INFO(krb5_is_config_principal),
+    MAKE_FUNC_INFO(krb5_free_ticket),
+    MAKE_FUNC_INFO(krb5_decode_ticket),
     END_FUNC_INFO
 };
 
@@ -725,6 +756,7 @@ BOOL CLeashApp::InitDLLs()
 #endif
     m_hKrb5DLL = AfxLoadLibrary(KERB5DLL);
     m_hKrb5ProfileDLL = AfxLoadLibrary(KERB5_PPROFILE_DLL);
+    m_hComErr - AfxLoadLibrary(COMERR_DLL);
 
 #ifndef NO_AFS
     afscompat_init();
@@ -754,6 +786,12 @@ BOOL CLeashApp::InitDLLs()
         return FALSE;
     }
 
+    if (!LoadFuncs(COMERR_DLL, ce_fi, &m_hComErr, 0, 0, 1, 0)) {
+        MessageBox(hwnd,
+                   "Functions within " COMERR_DLL "didn't load properly!",
+                   "Error", MB_OK);
+        return FALSE;
+    }
 ////
 #ifndef NO_KRB4
     if (m_hKrb4DLL)
@@ -1575,3 +1613,15 @@ CLeashApp::WinHelp(DWORD dwData, UINT nCmd)
 }
 #endif
 #endif
+
+
+BOOL CLeashApp::OnIdle(LONG lCount)
+{
+    // TODO: Add your specialized code here and/or call the base class
+    BOOL retval = CWinAppEx::OnIdle(lCount);
+    if ((lCount == 0) && m_bUpdateDisplay) {
+        m_bUpdateDisplay = FALSE;
+        m_pMainWnd->SendMessage(WM_COMMAND, ID_UPDATE_DISPLAY, 0);
+    }
+    return retval;
+}

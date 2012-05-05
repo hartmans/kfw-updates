@@ -106,6 +106,7 @@ private:
 public:
 	static HWND			m_hProgram;
 	static HINSTANCE	m_hLeashDLL;
+    static HINSTANCE    m_hComErr;
 ////
 #ifndef NO_KRB4
 	static HINSTANCE	m_hKrb4DLL;
@@ -119,6 +120,7 @@ public:
 	static profile_t    m_krbv5_profile;
 	static HINSTANCE    m_hKrbLSA;
     static int          m_useRibbon; // temporary while ribbon UI in progress
+    static BOOL         m_bUpdateDisplay;
 
 	CLeashApp();
 	virtual ~CLeashApp();
@@ -154,6 +156,8 @@ public:
 	//{{AFX_MSG(CLeashApp)
     //}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+    virtual BOOL OnIdle(LONG lCount);
 };
 
 extern CLeashApp theApp;
