@@ -4299,6 +4299,23 @@ const char *KRB5_CALLCONV
 krb5_cc_default_name(krb5_context context);
 
 /**
+ * Set the default credential cache name for all processes for the current
+ * user (and the current context).
+ *
+ * @param [in,out]  context     Library context
+ * @param [in]      name        Default credential cache name
+ *
+ * @retval
+ *  0  Success
+ * @retval
+ *  KV5M_CONTEXT          Bad magic number for @c _krb5_context structure
+ * @return
+ * Kerberos error codes
+ */
+krb5_error_code KRB5_CALLCONV
+krb5_cc_user_set_default_name(krb5_context context, const char *name);
+
+/**
  * Set the default credential cache name.
  *
  * @param [in,out]  context     Library context
