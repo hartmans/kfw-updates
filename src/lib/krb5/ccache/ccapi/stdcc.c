@@ -95,6 +95,7 @@ krb5_cc_ops krb5_cc_stdcc_ops = {
     NULL, /* wasdefault */
     krb5_stdccv3_lock,
     krb5_stdccv3_unlock,
+    krb5_stdccv3_switch_to,
 #else
     krb5_stdcc_get_name,
     krb5_stdcc_resolve,
@@ -1068,6 +1069,23 @@ krb5_error_code KRB5_CALLCONV krb5_stdccv3_context_unlock
         err = cc_context_unlock(gCntrlBlock);
     }
     return cc_err_xlate(err);
+}
+
+krb5_error_code KRB5_CALLCONV krb5_stdccv3_switch_to
+(krb5_context context, krb5_ccache id)
+{
+    const char *prefix = krb5_cc_get_type(context, id);
+    const char *cc_name = krb5_cc_get_name(context, id);
+    int namesize = strlen(prefix) + strlen(cc_name) + 1 + 1;
+    int code;
+    char *name = (char *)malloc(namesize);
+    if (!name)
+        return ENOMEM;
+    snprintf(name, namesize, "%s:%s", prefix, cc_name);
+    name[namesize-1] = 0;
+    code = krb5_cc_user_set_default_name(context, name);
+    free(name);
+    return code;
 }
 
 #else /* !USE_CCAPI_V3 */
