@@ -236,7 +236,8 @@ do_ccache(krb5_context ctx,
         goto cleanup;
     }
     if ((code = pkrb5_cc_get_principal(ctx, cache, &princ))) {
-        functionName = "krb5_cc_get_principal";
+        // Normal behavior; skip cache but suppress error message box
+        code = 0;
         goto cleanup;
     }
     if ((code = pkrb5_unparse_name(ctx, princ, &defname))) {
@@ -348,10 +349,7 @@ LeashKRB5ListDefaultTickets(TICKETINFO *ticketinfo)
     krb5_error_code	code;
     krb5_context ctx = 0;
     krb5_ccache cache = 0;
-    if (code = pkrb5_init_context(&ctx)) {
-        // error msg
-        return;
-    }
+    char *functionName = NULL;
 
     ticketinfo->btickets = NO_TICKETS;
     ticketinfo->principal = NULL;
@@ -359,13 +357,20 @@ LeashKRB5ListDefaultTickets(TICKETINFO *ticketinfo)
     ticketinfo->next = NULL;
     ticketinfo->ticket_list = NULL;
 
+    if (code = pkrb5_init_context(&ctx)) {
+        functionName = "krb5_init_context";
+        goto cleanup;
+    }
+
     if ((code = pkrb5_cc_default(ctx, &cache))) {
-        // error msg
+        functionName = "krb5_cc_default";
         goto cleanup;
     }
     if (cache != NULL)
         do_ccache(ctx, cache, &ticketinfo);
 cleanup:
+    if (code)
+        LeashKRB5Error(code, functionName);
     if (cache)
         pkrb5_cc_close(ctx, cache);
     if (ctx)
@@ -382,12 +387,17 @@ LeashKRB5ListAllTickets(TICKETINFO **ticketinfo)
 {
     krb5_error_code	code;
     krb5_context ctx = 0;
+    char *functionName = NULL;
 
     if (code = pkrb5_init_context(&ctx)) {
-        // error msg
-        return;
+        functionName = "krb5_init_context";
+        goto cleanup;
     }
 
     do_all_ccaches(ctx, ticketinfo);
+cleanup:
+    if (code)
+        LeashKRB5Error(code, functionName);
+    if (ctx)
+        pkrb5_free_context(ctx);
 }
-
