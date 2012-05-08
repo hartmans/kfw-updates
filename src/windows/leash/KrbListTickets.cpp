@@ -210,6 +210,7 @@ cleanup:
     return code;
 }
 
+// return 0 if ticketinfo was successfully appended to list, 1 otherwise
 int
 do_ccache(krb5_context ctx,
           krb5_ccache cache,
@@ -224,6 +225,7 @@ do_ccache(krb5_context ctx,
     char *functionName = NULL;
     TicketList **ticketListTail;
     TICKETINFO *ticketinfo = NULL;
+    int retval = 1;
 
     flags = 0; // turns off OPENCLOSE mode
     if ((code = pkrb5_cc_set_flags(ctx, cache, flags))) {
@@ -299,11 +301,15 @@ do_ccache(krb5_context ctx,
 cleanup:
     if (code)
         LeashKRB5Error(code, functionName);
-    if (ticketinfo && (ticketinfo != *ticketInfoTail))
-        LeashKRB5FreeTickets(&ticketinfo);
+    if (ticketinfo) {
+        if (ticketinfo == *ticketInfoTail)
+            retval = 0;
+        else
+            LeashKRB5FreeTickets(&ticketinfo);
+    }
     if (defname)
         pkrb5_free_unparsed_name(ctx, defname);
-    return code ? 1 : 0;
+    return retval;
 }
 
 
@@ -316,7 +322,7 @@ do_all_ccaches(krb5_context ctx, TICKETINFO **ticketinfotail)
     krb5_error_code code;
     krb5_ccache cache;
     krb5_cccol_cursor cursor;
-    int retval = 0;
+    int retval = 1;
     char *functionName = NULL;
 
     code = pkrb5_cccol_cursor_new(ctx, &cursor);
