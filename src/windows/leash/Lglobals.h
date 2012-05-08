@@ -175,6 +175,7 @@ extern DECL_FUNC_PTR(krb5_decode_ticket);
 extern DECL_FUNC_PTR(krb5_free_ticket);
 extern DECL_FUNC_PTR(krb5_init_context);
 extern DECL_FUNC_PTR(krb5_is_config_principal);
+extern DECL_FUNC_PTR(krb5_cc_switch);
 // extern DECL_FUNC_PTR(krb5_get_host_realm);
 
 // profile functions

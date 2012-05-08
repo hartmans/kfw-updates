@@ -90,6 +90,11 @@ DECL_FUNC_PTR(krb5_is_config_principal);
 DECL_FUNC_PTR(krb5_cccol_cursor_new);
 DECL_FUNC_PTR(krb5_cccol_cursor_free);
 DECL_FUNC_PTR(krb5_cccol_cursor_next);
+DECL_FUNC_PTR(krb5_cc_cache_match);
+DECL_FUNC_PTR(krb5_cc_get_type);
+DECL_FUNC_PTR(krb5_cc_new_unique);
+DECL_FUNC_PTR(krb5_cc_support_switch);
+DECL_FUNC_PTR(krb5_cc_switch);
 
 // ComErr functions
 DECL_FUNC_PTR(com_err);
@@ -194,6 +199,11 @@ FUNC_INFO k5_fi[] = {
     MAKE_FUNC_INFO(krb5_cccol_cursor_new),
     MAKE_FUNC_INFO(krb5_cccol_cursor_next),
     MAKE_FUNC_INFO(krb5_cccol_cursor_free),
+    MAKE_FUNC_INFO(krb5_cc_cache_match),
+    MAKE_FUNC_INFO(krb5_cc_get_type),
+    MAKE_FUNC_INFO(krb5_cc_new_unique),
+    MAKE_FUNC_INFO(krb5_cc_support_switch),
+    MAKE_FUNC_INFO(krb5_cc_switch),
     END_FUNC_INFO
 };
 

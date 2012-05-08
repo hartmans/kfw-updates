@@ -218,6 +218,11 @@ extern DECL_FUNC_PTR(krb5_is_config_principal);
 extern DECL_FUNC_PTR(krb5_cccol_cursor_new);
 extern DECL_FUNC_PTR(krb5_cccol_cursor_next);
 extern DECL_FUNC_PTR(krb5_cccol_cursor_free);
+extern DECL_FUNC_PTR(krb5_cc_cache_match);
+extern DECL_FUNC_PTR(krb5_cc_get_type);
+extern DECL_FUNC_PTR(krb5_cc_new_unique);
+extern DECL_FUNC_PTR(krb5_cc_support_switch);
+extern DECL_FUNC_PTR(krb5_cc_switch);
 
 #ifndef NO_KRB4
 // Krb524 functions
