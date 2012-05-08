@@ -672,6 +672,7 @@ DECL_FUNC_PTR(krb5_cc_set_flags);
 DECL_FUNC_PTR(krb5_is_config_principal);
 DECL_FUNC_PTR(krb5_free_ticket);
 DECL_FUNC_PTR(krb5_decode_ticket);
+DECL_FUNC_PTR(krb5_cc_switch);
 
 
 FUNC_INFO krb5_fi[] = {
@@ -707,6 +708,7 @@ FUNC_INFO krb5_fi[] = {
     MAKE_FUNC_INFO(krb5_is_config_principal),
     MAKE_FUNC_INFO(krb5_free_ticket),
     MAKE_FUNC_INFO(krb5_decode_ticket),
+    MAKE_FUNC_INFO(krb5_cc_switch),
     END_FUNC_INFO
 };
 
