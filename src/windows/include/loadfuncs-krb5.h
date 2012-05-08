@@ -1788,4 +1788,32 @@ TYPEDEF_FUNC(
     krb5_cccol_cursor_free,
     (krb5_context, krb5_cccol_cursor *cursor)
     );
+
+TYPEDEF_FUNC(
+    krb5_error_code,
+    KRB5_CALLCONV,
+    krb5_cc_cache_match,
+    (krb5_context, krb5_principal, krb5_ccache *)
+    );
+
+TYPEDEF_FUNC(
+    krb5_error_code,
+    KRB5_CALLCONV,
+    krb5_cc_new_unique,
+    (krb5_context, const char *, const char *, krb5_ccache *)
+    );
+
+TYPEDEF_FUNC(
+    krb5_boolean,
+    KRB5_CALLCONV,
+    krb5_cc_support_switch,
+    (krb5_context, const char *)
+    );
+
+TYPEDEF_FUNC(
+    krb5_error_code,
+    KRB5_CALLCONV,
+    krb5_cc_switch,
+    (krb5_context, krb5_ccache)
+    );
 #endif /* __LOADFUNCS_KRB5_H__ */
